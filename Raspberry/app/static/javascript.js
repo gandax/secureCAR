@@ -8,6 +8,9 @@ var carData = angular.module('carData',[]);
 carData.controller('carController', ['$scope', '$http',
 	function($scope, $http){
 
+		// To change
+		const anglemax = 20;
+
 		var motorCommand = 0;
 		var directionCommand = 0;
 
@@ -27,8 +30,8 @@ carData.controller('carController', ['$scope', '$http',
 			$("#leftarrow").attr("src","static/img/arrow-left.png");
 		};
 
-		$scope.OnKeyUp = function($event){
-			var keyCode = $event.keyCode;
+		document.onkeyup = function(e){
+			var keyCode = e.keyCode;
 			if(keyCode==keyup && isKeyup){
 				motorCommand = 0;
 				sendCommands();
@@ -48,8 +51,8 @@ carData.controller('carController', ['$scope', '$http',
 			}
 
 		}
-		$scope.OnKeyDown = function($event){
-			var keyCode = $event.keyCode;
+		document.onkeydown = function(e){
+			var keyCode = e.keyCode;
 			if(keyCode==keyup && !isKeyup && !isKeydown){
 				motorCommand = 1;
 				sendCommands();
@@ -60,10 +63,14 @@ carData.controller('carController', ['$scope', '$http',
 				sendCommands();
 				isKeydown = true;
 				$("#downarrow").attr("src","static/img/arrow-down-o.png");
-			}else if(keyCode==keyleft && !isKeyleft && !isKeyright){
+			}else if(keyCode==keyleft && !isKeyright && directionCommand>-anglemax){
+				directionCommand--;
+				sendCommands();
 				isKeyleft = true;
 				$("#leftarrow").attr("src","static/img/arrow-left-o.png");
-			}else if(keyCode==keyright && !isKeyright && !isKeyleft){
+			}else if(keyCode==keyright && !isKeyleft && directionCommand<anglemax){
+				directionCommand++;
+				sendCommands();
 				isKeyright = true;
 				$("#rightarrow").attr("src","static/img/arrow-right-o.png");
 			}
