@@ -10,12 +10,15 @@ class MainHandler(tornado.web.RequestHandler):
 
 def recordCommands(data):
 	print(data)
+	file = open("../commands.txt","w")
+	file.write(str(data['motors'])+"#"+str(data['direction']))
+	file.close
 	
 class DataHandler(tornado.web.RequestHandler):
 	def get(self):
 		self.write("get data")
 	def post(self):
-		recordCommands(self.request.body);
+		recordCommands(tornado.escape.json_decode(self.request.body));
 		self.write("");
 
 
