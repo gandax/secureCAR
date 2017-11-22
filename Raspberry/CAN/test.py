@@ -4,7 +4,7 @@ from __future__ import print_function
 import can
 import time
 
-def send_400():
+def send_cyclic():
     bus = can.interface.Bus(channel='can0', bustype='socketcan_native')
     msg = can.Message(arbitration_id=0x400,
                       data=[2, 0, 0, 0, 0, 0, 0, 0],
@@ -15,7 +15,7 @@ def send_400():
     isRunning = True
 
     try:
-        while(isRunning):   
+        while(isRunning):
             if(time.time() - timeLastSend >= DELAY_PERIOD):
                 bus.send(msg)
                 timeLastSend = time.time()
@@ -26,4 +26,4 @@ def send_400():
         print("Message NOT sent")
 
 if __name__ == "__main__":
-    send_400()
+    send_cyclic()
