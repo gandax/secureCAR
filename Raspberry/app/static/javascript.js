@@ -9,7 +9,7 @@ carData.controller('carController', ['$scope', '$http',
 	function($scope, $http){
 
 		// To change
-		const anglemax = 20;
+		const anglemax = 24;
 
 		var motorCommand = 0;
 		var directionCommand = 0;
