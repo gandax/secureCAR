@@ -9,10 +9,10 @@ carData.controller('carController', ['$scope', '$http',
 	function($scope, $http){
 
 		// To change
-		const anglemax = 24;
+		const anglemax = 58;
 
 		var motorCommand = 0;
-		var directionCommand = 0;
+		var directionCommand = 34;
 
 		var keyup = 38;
 		var keydown = 40;
@@ -54,16 +54,16 @@ carData.controller('carController', ['$scope', '$http',
 		document.onkeydown = function(e){
 			var keyCode = e.keyCode;
 			if(keyCode==keyup && !isKeyup && !isKeydown){
-				motorCommand = 1;
+				motorCommand = 2;
 				sendCommands();
 				isKeyup = true;
 				$("#uparrow").attr("src","static/img/arrow-up-o.png");
 			}else if(keyCode==keydown && !isKeydown && !isKeyup){
-				motorCommand = -1;
+				motorCommand = 1;
 				sendCommands();
 				isKeydown = true;
 				$("#downarrow").attr("src","static/img/arrow-down-o.png");
-			}else if(keyCode==keyleft && !isKeyright && directionCommand>-anglemax){
+			}else if(keyCode==keyleft && !isKeyright && directionCommand>10){
 				directionCommand--;
 				sendCommands();
 				isKeyleft = true;

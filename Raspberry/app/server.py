@@ -2,6 +2,7 @@ import tornado.ioloop
 import tornado.web
 import os.path
 import socket
+import time
 
 connection_to_server = 0
 
@@ -45,7 +46,7 @@ if __name__ == "__main__":
 	app = make_app()
 	app.listen(8080)
 	connectSocket()
-	msg = "0#0"
+	msg = "0#24"
 	connection_to_server.send(msg.encode())
 	tornado.ioloop.IOLoop.current().start()
 
