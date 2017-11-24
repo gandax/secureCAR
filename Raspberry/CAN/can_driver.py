@@ -59,7 +59,7 @@ class Send(Thread):
     def run(self):
         global connection_client
         bus = can.interface.Bus(channel='can0', bustype='socketcan_native')
-        can_msg = can.Message(arbitration_id=0x16,
+        can_msg = can.Message(arbitration_id=0x14,
                               data=[0, 0],
                               extended_id=False)
 
