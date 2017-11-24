@@ -63,19 +63,19 @@ class Send(Thread):
         while(isRunning):
             if(time.time() - timeLastSend >= DELAY_PERIOD):
                 msg = b""
-                msg = connection_client.recv(1024)
-                if(msg != ""):
-                    string = msg.decode()
-                    #print(string)
-                    motor = string[0]
-                    string_direction = ""
-                    for i in range(2,4):
-                        string_direction += string[i]
-                    direction = string_direction
-                    #print(motor)
-                    #print(direction)
-                    can_msg.data[0]=int(motor)
-                    can_msg.data[1]=int(direction)
+                try:
+                    msg = connection_client.recv(1024)
+                    if(msg != ""):
+                        string = msg.decode()
+                        motor = string[0]
+                        string_direction = ""
+                        for i in range(2,4):
+                            string_direction += string[i]
+                        direction = string_direction
+                        can_msg.data[0]=int(motor)
+                        can_msg.data[1]=int(direction)
+                except BlockingIOError:
+                    pass
 
                 try:
                     bus.send(can_msg)
@@ -99,6 +99,7 @@ connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 connection.bind((host, port))
 connection.listen(1)
 connection_client, data_connection = connection.accept()
+connection_client.setblocking(False)
 
 Send(0.05)
 Receive()
