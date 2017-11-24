@@ -112,7 +112,7 @@ def createServer():
     connection_client, data_connection = connection.accept()
     connection_client.setblocking(False)
 
-def connectServer:
+def connectServer():
     global connection_to_server
     host = "localhost"
     port = 12801
