@@ -12,17 +12,17 @@ connection_client = None
 class MainHandler(tornado.web.RequestHandler):
 	def get(self):
 		self.render("index.html")
-	
+
 class DataHandler(tornado.web.RequestHandler):
 	def get(self):
-		msg = b""
+		"""msg = b""
 		try:
 		    msg = connection_client.recv(1024)
 		    if(msg != ""):
 		        string = msg.decode()
 		        print(string)
 		except BlockingIOError:
-		    pass
+		    pass"""
 	def post(self):
 		recordCommands(tornado.escape.json_decode(self.request.body));
 		self.write("");
@@ -63,9 +63,8 @@ def recordCommands(data):
 if __name__ == "__main__":
 	app = make_app()
 	app.listen(8080)
-	createServerSocket()
 	connectSocket()
+	createServerSocket()
 	msg = "0#24"
 	connection_to_server.send(msg.encode())
 	tornado.ioloop.IOLoop.current().start()
-

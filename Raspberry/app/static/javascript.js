@@ -9,10 +9,10 @@ carData.controller('carController', ['$scope', '$http',
 	function($scope, $http){
 
 		// To change
-		const anglemax = 58;
+		const anglemax = 20;
 
 		var motorCommand = 0;
-		var directionCommand = 34;
+		var directionCommand = 15;
 
 		var keyup = 38;
 		var keydown = 40;
@@ -101,6 +101,6 @@ carData.controller('carController', ['$scope', '$http',
 		}
 
 		setInterval(getData, 500);
-	}	
+	}
 
 ]);
