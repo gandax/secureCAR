@@ -6,13 +6,11 @@ import time
 from threading import Thread
 import socket
 
-host = ''
-port = 12800
-
 motor = 0
 direction = 0
 
 connection_client=0
+connection_to_server=0
 
 g_file=None
 
@@ -34,11 +32,13 @@ class Receive_listener(can.Listener):
         g_file=output_file
 
     def on_message_received(self, msg):
+        global connection_to_server
         if self.output_file is not None:
-            #print(self.output_file)
-            #print(msg.arbitration_id)
             if(msg.arbitration_id==10):
                 self.output_file.write(str(msg) + "\n")
+                msg_socket = str(msg.data[0]) # +'#'str(msg.data[1])+'#'+str(msg.data[2])
+                bytes_msg = msg_socket.encode()
+                connection_to_server.send(bytes_msg)
         else:
             print(msg)
 
@@ -101,12 +101,28 @@ class Receive(Thread):
         bus = can.interface.Bus(channel='can0', bustype='socketcan_native')
         notifier = can.Notifier(bus, [Receive_listener("../log.txt")])
 
-connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-connection.bind((host, port))
-connection.listen(1)
-connection_client, data_connection = connection.accept()
-connection_client.setblocking(False)
+def createServer():
+    global connection_client
+    global connection
+    host = ''
+    port = 12800
+    connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    connection.bind((host, port))
+    connection.listen(1)
+    connection_client, data_connection = connection.accept()
+    connection_client.setblocking(False)
 
+def connectServer:
+    global connection_to_server
+    host = "localhost"
+    port = 12801
+    connection_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    connection_to_server.connect((host, port))
+    print("Connection to web server process")
+
+
+createServer()
+connectServer()
 Send(0.05)
 Receive()
 try:
