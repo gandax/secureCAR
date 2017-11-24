@@ -14,6 +14,8 @@ direction = 0
 
 connection_client=0
 
+g_file=None
+
 
 class Receive_listener(can.Listener):
     """
@@ -24,17 +26,21 @@ class Receive_listener(can.Listener):
     """
 
     def __init__(self, output_file=None):
+        global g_file
         if output_file is not None:
             #log.info("Creating log file '{}' ".format(output_file))
             output_file = open(output_file, 'wt')
         self.output_file = output_file
+        g_file=output_file
 
     def on_message_received(self, msg):
         if self.output_file is not None:
-            print(self.output_file)
-            self.output_file.write(str(msg) + "\n")
-        #else:
-            #print(msg)
+            #print(self.output_file)
+            #print(msg.arbitration_id)
+            if(msg.arbitration_id==10):
+                self.output_file.write(str(msg) + "\n")
+        else:
+            print(msg)
 
     def __del__(self):
         #bug fix : never close file ??
@@ -93,7 +99,7 @@ class Receive(Thread):
 
     def run(self):
         bus = can.interface.Bus(channel='can0', bustype='socketcan_native')
-        notifier = can.Notifier(bus, [Receive_listener()])
+        notifier = can.Notifier(bus, [Receive_listener("../log.txt")])
 
 connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 connection.bind((host, port))
@@ -103,6 +109,11 @@ connection_client.setblocking(False)
 
 Send(0.05)
 Receive()
-
-while True:
-    pass
+try:
+    while True:
+        pass
+except KeyboardInterrupt:
+    print("Stop")
+    connection_client.close()
+    connection.close()
+    g_file.close()
