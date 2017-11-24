@@ -79,15 +79,28 @@ carData.controller('carController', ['$scope', '$http',
 		function sendCommands(){
 			var commands = {'motors' : motorCommand, 'direction' : directionCommand};
 			$http({
-				  method: 'POST',
-				  url: '/data',
-				  data: commands
-				}).then(function successCallback(response) {
-				    console.log("Commands sent");
-				  }, function errorCallback(response) {
-				    console.log("Error : " + response)
-				  });
+			  method: 'POST',
+			  url: '/data',
+			  data: commands
+			}).then(function successCallback(response) {
+			    console.log("Commands sent");
+			  }, function errorCallback(response) {
+			    console.log("Error : " + response)
+			});
 		}
+
+		function getData(){
+			$http({
+			  method: 'GET',
+			  url: '/data',
+			}).then(function successCallback(response) {
+			    console.log("get data");
+			  }, function errorCallback(response) {
+			    console.log("Error : " + response)
+			});
+		}
+
+		setInterval(getData, 500);
 	}	
 
 ]);
