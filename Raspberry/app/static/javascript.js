@@ -16,8 +16,8 @@ carData.controller('carController', ['$scope', '$http',
 
 		var keyup = 38;
 		var keydown = 40;
-		var keyleft = 39;
-		var keyright = 37;
+		var keyleft = 37;
+		var keyright = 39;
 		var isKeyup = false;
 		var isKeydown = false;
 		var isKeyleft = false;
@@ -63,13 +63,13 @@ carData.controller('carController', ['$scope', '$http',
 				sendCommands();
 				isKeydown = true;
 				$("#downarrow").attr("src","static/img/arrow-down-o.png");
-			}else if(keyCode==keyleft && !isKeyright && directionCommand>10){
-				directionCommand--;
+			}else if(keyCode==keyleft && !isKeyright && directionCommand<anglemax){
+				directionCommand++;
 				sendCommands();
 				isKeyleft = true;
 				$("#leftarrow").attr("src","static/img/arrow-left-o.png");
-			}else if(keyCode==keyright && !isKeyleft && directionCommand<anglemax){
-				directionCommand++;
+			}else if(keyCode==keyright && !isKeyleft && directionCommand>10){
+				directionCommand--;
 				sendCommands();
 				isKeyright = true;
 				$("#rightarrow").attr("src","static/img/arrow-right-o.png");
