@@ -9,15 +9,15 @@ carData.controller('carController', ['$scope', '$http',
 	function($scope, $http){
 
 		// To change
-		const anglemax = 20;
+		const anglemax = 58;
 
 		var motorCommand = 0;
-		var directionCommand = 15;
+		var directionCommand = 34;
 
 		var keyup = 38;
 		var keydown = 40;
-		var keyleft = 37;
-		var keyright = 39;
+		var keyleft = 39;
+		var keyright = 37;
 		var isKeyup = false;
 		var isKeydown = false;
 		var isKeyleft = false;
