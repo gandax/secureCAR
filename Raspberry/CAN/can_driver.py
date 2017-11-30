@@ -6,8 +6,11 @@ import time
 from threading import Thread
 import socket
 
-motor = 0
+state_motor = 0
+state_motor_old = 0
+speed_command = 0
 direction = 0
+slope = 1
 
 connection_client=0
 connection_to_server=0
@@ -58,9 +61,12 @@ class Send(Thread):
 
     def run(self):
         global connection_client
+        global state_motor
+        global state_motor_old
+        global speed_command
         bus = can.interface.Bus(channel='can0', bustype='socketcan_native')
         can_msg = can.Message(arbitration_id=0x14,
-                              data=[0, 0],
+                              data=[0, 0, 0],
                               extended_id=False)
 
         DELAY_PERIOD = self.period #the delay period btw sending
@@ -73,17 +79,37 @@ class Send(Thread):
                     msg = connection_client.recv(1024)
                     if(msg != ""):
                         string = msg.decode()
-                        motor = string[0]
+                        state_motor = string[0]
                         string_direction = ""
                         for i in range(2,4):
                             string_direction += string[i]
                         direction = string_direction
-                        can_msg.data[0]=int(motor)
+                        can_msg.data[0]=int(state_motor)
                         can_msg.data[1]=int(direction)
+                    #    can_msg.data[2]=int(speed_command)
                 except BlockingIOError:
                     pass
 
                 try:
+                    if(int(state_motor)==0):
+                      if(speed_command>=0):
+                          speed_command-=slope
+                    elif((int(state_motor)==2 and (int(state_motor_old)==2 or int(state_motor_old)==0)) or (int(state_motor)==1 and (int(state_motor_old)==1 or int(state_motor_old)==0) )):
+                      if(speed_command<100):
+                          speed_command+=slope
+                    elif(int(state_motor)==2 and int(state_motor_old)==1):
+                      if(speed_command<100):
+                          print("test")
+                          speed_command+=slope
+                    elif(int(state_motor==1) and int(state_motor_old)==2):
+                      if(speed_command>=0):
+                          print("print")
+                          speed_command-=slope
+                          # redescedre a 0 et remonter boléen
+                    state_motor_old = state_motor
+                    print("Speed command :"+str(speed_command))
+                    print("State motor :" +state_motor)
+                    print("State motor old :"+state_motor_old)
                     bus.send(can_msg)
                     timeLastSend = time.time()
                     #time.sleep(0.02) #Change Delay to balance accuracy/CPU usage
@@ -122,6 +148,7 @@ def connectServer():
 
 
 createServer()
+time.sleep(0.5)
 connectServer()
 Send(0.05)
 Receive()
