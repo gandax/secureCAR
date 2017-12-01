@@ -42,7 +42,7 @@ class Receive_listener(can.Listener):
                 self.output_file.write(str(msg) + "\n")
                 left_odo = msg.data[0] + msg.data[1]
                 right_odo = msg.data[2] + msg.data[3]
-                msg_socket = str(left_odo) +'#' + str(right_odo) +'#'+str(msg.data[4])
+                msg_socket = str(left_odo) +'#' + str(right_odo) +'#'+str(msg.data[4])+'#'
                 bytes_msg = msg_socket.encode()
                 connection_to_server.send(bytes_msg)
         else:
