@@ -16,14 +16,40 @@ class MainHandler(tornado.web.RequestHandler):
 
 class DataHandler(tornado.web.RequestHandler):
 	def get(self):
-		"""msg = b""
-		try:
-		    msg = connection_client.recv(1024)
-		    if(msg != ""):
-		        string = msg.decode()
-		        print(string)
-		except BlockingIOError:
-		    pass"""
+		global connection_client
+        found = False
+        nb = 0
+        potentiometer = ""
+        left_odo = ""
+        right_odo = ""
+		if(connection_client!=None):
+		  msg = b""
+		  msg = connection_client.recv(1024)
+		  if(msg != ""):
+		      string = msg.decode()
+		      i = len(str)-2
+		      while(not(found)):
+                    if(nb==0):
+                        if(string[i]!='#'):
+                            potentiometer=string[i]+potentiometer
+                        else:
+                            nb+=1
+                    elif(nb==1):
+                        if(string[i]!='#'):
+                            right_odo=string[i]+right_odo
+                        else:
+                            nb+=1
+                    elif(nb==2):
+                        if(i<0):
+                            found=True
+                        elif(string[i]!='#'):
+                            left_odo=string[i]+left_odo
+                        else:
+                            find=True
+                    i-=1
+		      print("left :" + left_odo)
+		      print("right :" + right_odo)
+		      print("potar :" + potentiometer)
 	def post(self):
 		recordCommands(tornado.escape.json_decode(self.request.body));
 		self.write("");
@@ -64,13 +90,13 @@ def recordCommands(data):
 	connection_to_server.send(bytes_msg)
 
 if __name__ == "__main__":
-	app = make_app()
-	app.listen(8080)
 	connectSocket()
 	createServerSocket()
 	msg = "0#15"
 	connection_to_server.send(msg.encode())
 	try:
+	   app = make_app()
+	   app.listen(8080)
 	   tornado.ioloop.IOLoop.current().start()
 	except KeyboardInterrupt:
 	   print("Stop")
