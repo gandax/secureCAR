@@ -8,6 +8,7 @@ connection_to_server = 0
 host=''
 port=12801
 connection_client = None
+connection = None
 
 class MainHandler(tornado.web.RequestHandler):
 	def get(self):
@@ -38,6 +39,8 @@ def make_app():
 	)
 
 def createServerSocket():
+	global connection
+	global connection_client
 	connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	connection.bind((host, port))
 	connection.listen(1)
@@ -65,6 +68,13 @@ if __name__ == "__main__":
 	app.listen(8080)
 	connectSocket()
 	createServerSocket()
-	msg = "0#24"
+	msg = "0#15"
 	connection_to_server.send(msg.encode())
-	tornado.ioloop.IOLoop.current().start()
+	try:
+	   tornado.ioloop.IOLoop.current().start()
+	except KeyboardInterrupt:
+	   print("Stop")
+	   connection_to_server.close()
+	   connection_client.close()
+	   connection.close()
+

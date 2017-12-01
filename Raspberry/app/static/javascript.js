@@ -8,11 +8,11 @@ var carData = angular.module('carData',[]);
 carData.controller('carController', ['$scope', '$http',
 	function($scope, $http){
 
-		// To change
 		const anglemax = 20;
+        const anglemin = 10;
 
 		var motorCommand = 0;
-		var directionCommand = 10;
+		var directionCommand = (anglemax+anglemin)/2;
 
 		var keyup = 38;
 		var keydown = 40;
@@ -63,14 +63,18 @@ carData.controller('carController', ['$scope', '$http',
 				sendCommands();
 				isKeydown = true;
 				$("#downarrow").attr("src","static/img/arrow-down-o.png");
-			}else if(keyCode==keyleft && !isKeyright && directionCommand<anglemax){
-				directionCommand++;
-				sendCommands();
+			}else if(keyCode==keyleft && !isKeyright){
+                if(directionCommand<anglemax){
+                    directionCommand++;
+                    sendCommands();
+                }
 				isKeyleft = true;
 				$("#leftarrow").attr("src","static/img/arrow-left-o.png");
-			}else if(keyCode==keyright && !isKeyleft && directionCommand>10){
-				directionCommand--;
-				sendCommands();
+			}else if(keyCode==keyright && !isKeyleft){
+                if(directionCommand>anglemin){
+                    directionCommand--;
+				    sendCommands();
+                }
 				isKeyright = true;
 				$("#rightarrow").attr("src","static/img/arrow-right-o.png");
 			}
