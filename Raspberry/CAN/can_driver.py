@@ -39,15 +39,15 @@ class Receive_listener(can.Listener):
         if self.output_file is not None:
             if(msg.arbitration_id==10):
                 self.output_file.write(str(msg) + "\n")
-                msg_socket = str(msg.data[0]) # +'#'str(msg.data[1])+'#'+str(msg.data[2])
+                left_odo = msg.data[0] + msg.data[1]
+                right_odo = msg.data[2] + msg.data[3]
+                msg_socket = str(left_odo) +'#' + str(right_odo) +'#'+str(msg.data[4])
                 bytes_msg = msg_socket.encode()
                 connection_to_server.send(bytes_msg)
         else:
             print(msg)
 
     def __del__(self):
-        #bug fix : never close file ??
-        print("Del")
         self.output_file.write("\n")
         if self.output_file:
             self.output_file.close()
@@ -79,14 +79,15 @@ class Send(Thread):
                     msg = connection_client.recv(1024)
                     if(msg != ""):
                         string = msg.decode()
-                        state_motor = string[0]
-                        string_direction = ""
-                        for i in range(2,4):
-                            string_direction += string[i]
-                        direction = string_direction
-                        can_msg.data[0]=int(state_motor)
-                        can_msg.data[1]=int(direction)
-                    #    can_msg.data[2]=int(speed_command)
+                        if(len(string)>0):
+                            state_motor = string[0]
+                            string_direction = ""
+                            for i in range(2,4):
+                                string_direction += string[i]
+                            direction = string_direction
+                            can_msg.data[0]=int(state_motor)
+                            can_msg.data[1]=int(direction)
+                            #can_msg.data[2]=int(speed_command)
                 except BlockingIOError:
                     pass
 
@@ -99,17 +100,15 @@ class Send(Thread):
                           speed_command+=slope
                     elif(int(state_motor)==2 and int(state_motor_old)==1):
                       if(speed_command<100):
-                          print("test")
                           speed_command+=slope
                     elif(int(state_motor==1) and int(state_motor_old)==2):
                       if(speed_command>=0):
-                          print("print")
                           speed_command-=slope
-                          # redescedre a 0 et remonter boléen
+                          #redescedre a 0 et remonter boléen
                     state_motor_old = state_motor
-                    print("Speed command :"+str(speed_command))
-                    print("State motor :" +state_motor)
-                    print("State motor old :"+state_motor_old)
+                    #print("Speed command :"+str(speed_command))
+                    #print("State motor :" +state_motor)
+                    #print("State motor old :"+state_motor_old)
                     bus.send(can_msg)
                     timeLastSend = time.time()
                     #time.sleep(0.02) #Change Delay to balance accuracy/CPU usage
@@ -159,4 +158,5 @@ except KeyboardInterrupt:
     print("Stop")
     connection_client.close()
     connection.close()
+    connection_to_server.close()
     g_file.close()
