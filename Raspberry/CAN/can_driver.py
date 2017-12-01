@@ -7,7 +7,6 @@ from threading import Thread
 import socket
 
 state_motor = 0
-state_motor_old = 0
 speed_command = 0
 direction = 0
 slope = 1
@@ -62,7 +61,6 @@ class Send(Thread):
     def run(self):
         global connection_client
         global state_motor
-        global state_motor_old
         global speed_command
         bus = can.interface.Bus(channel='can0', bustype='socketcan_native')
         can_msg = can.Message(arbitration_id=0x14,
@@ -93,22 +91,34 @@ class Send(Thread):
 
                 try:
                     if(int(state_motor)==0):
-                      if(speed_command>=0):
+                      if(speed_command>0):
+                          print("Test 2")
                           speed_command-=slope
-                    elif((int(state_motor)==2 and (int(state_motor_old)==2 or int(state_motor_old)==0)) or (int(state_motor)==1 and (int(state_motor_old)==1 or int(state_motor_old)==0) )):
-                      if(speed_command<100):
-                          speed_command+=slope
-                    elif(int(state_motor)==2 and int(state_motor_old)==1):
-                      if(speed_command<100):
-                          speed_command+=slope
-                    elif(int(state_motor==1) and int(state_motor_old)==2):
-                      if(speed_command>=0):
-                          speed_command-=slope
-                          #redescedre a 0 et remonter boléen
-                    state_motor_old = state_motor
-                    #print("Speed command :"+str(speed_command))
-                    #print("State motor :" +state_motor)
-                    #print("State motor old :"+state_motor_old)
+                      elif(speed_command==0):
+                          recule=False
+                          avance=False
+                          chgt=False
+                    else:
+                      if(int(state_motor)==2):
+                          avance=True
+                          if(recule):
+                              chgt=True
+                              recule=False
+                      else:
+                          recule=True
+                          if(avance):
+                              chgt=True
+                              avance=False
+                      if(not(chgt)):
+                          if(speed_command<100):
+                              speed_command+=slope
+                      else:
+                          if(speed_command>0):
+                              speed_command-=slope
+                          elif(speed_command==0):
+                              chgt=False
+                    print("Speed command :"+str(speed_command))
+                    print("State motor :" +state_motor)
                     bus.send(can_msg)
                     timeLastSend = time.time()
                     #time.sleep(0.02) #Change Delay to balance accuracy/CPU usage
