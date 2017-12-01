@@ -9,7 +9,9 @@ import socket
 state_motor = 0
 speed_command = 0
 direction = 0
-slope = 1
+slope_up = 1
+slope_down =10
+max_speed=100
 
 connection_client=0
 connection_to_server=0
@@ -91,13 +93,13 @@ class Send(Thread):
 
                 try:
                     if(int(state_motor)==0):
-                      if(speed_command>0):
-                          print("Test 2")
-                          speed_command-=slope
-                      elif(speed_command==0):
+                      if(speed_command>slope_down):
+                          speed_command-=slope_down
+                      elif(speed_command<=slope_down):
                           recule=False
                           avance=False
                           chgt=False
+                          speed_command=0
                     else:
                       if(int(state_motor)==2):
                           avance=True
@@ -110,13 +112,14 @@ class Send(Thread):
                               chgt=True
                               avance=False
                       if(not(chgt)):
-                          if(speed_command<100):
-                              speed_command+=slope
+                          if(speed_command<max_speed):
+                              speed_command+=slope_up
                       else:
-                          if(speed_command>0):
-                              speed_command-=slope
-                          elif(speed_command==0):
+                          if(speed_command>slope_down):
+                              speed_command-=slope_down
+                          elif(speed_command<=slope_down):
                               chgt=False
+                              speed_command=0
                     print("Speed command :"+str(speed_command))
                     print("State motor :" +state_motor)
                     bus.send(can_msg)
