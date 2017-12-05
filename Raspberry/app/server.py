@@ -3,6 +3,7 @@ import tornado.web
 import os.path
 import socket
 import time
+import json
 
 connection_to_server = 0
 host=''
@@ -16,40 +17,46 @@ class MainHandler(tornado.web.RequestHandler):
 
 class DataHandler(tornado.web.RequestHandler):
 	def get(self):
-		global connection_client
-        found = False
-        nb = 0
-        potentiometer = ""
-        left_odo = ""
-        right_odo = ""
-		if(connection_client!=None):
-		  msg = b""
-		  msg = connection_client.recv(1024)
-		  if(msg != ""):
-		      string = msg.decode()
-		      i = len(str)-2
-		      while(not(found)):
-                    if(nb==0):
-                        if(string[i]!='#'):
-                            potentiometer=string[i]+potentiometer
-                        else:
-                            nb+=1
-                    elif(nb==1):
-                        if(string[i]!='#'):
-                            right_odo=string[i]+right_odo
-                        else:
-                            nb+=1
-                    elif(nb==2):
-                        if(i<0):
-                            found=True
-                        elif(string[i]!='#'):
-                            left_odo=string[i]+left_odo
-                        else:
-                            find=True
-                    i-=1
-		      print("left :" + left_odo)
-		      print("right :" + right_odo)
-		      print("potar :" + potentiometer)
+		if(self!=None):
+			global connection_client
+	        found = False
+	        nb = 0
+	        potentiometer = ""
+	        left_odo = ""
+	        right_odo = ""
+	        json_data = None
+	        if(connection_client!=None):
+			  msg = b""
+			  msg = connection_client.recv(1024)
+			  if(msg != ""):
+			      string = msg.decode()
+			      i = len(string)-2
+			      while(not(found)):
+			      	if(nb==0):
+			      		if(string[i]!='#'):
+			      			potentiometer=string[i]+potentiometer
+			      		else:
+			      			nb+=1
+			      	elif(nb==1):
+			      		if(string[i]!='#'):
+			      			right_odo=string[i]+right_odo
+			      		else:
+			      			nb+=1
+			      	elif(nb==2):
+			      		if(i<0):
+			      			found=True
+			      		elif(string[i]!='#'):
+			      			left_odo=string[i]+left_odo
+			      		else:
+			      			find=True
+			      	i-=1
+			      data = {}
+			      data['left'] = left_odo
+			      data['right'] = right_odo
+			      data['potentiometer'] = potentiometer
+			      json_data = json.dumps(data)
+	        self.write(json_data)		      
+
 	def post(self):
 		recordCommands(tornado.escape.json_decode(self.request.body));
 		self.write("");

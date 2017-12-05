@@ -8,6 +8,7 @@ var carData = angular.module('carData',[]);
 carData.controller('carController', ['$scope', '$http',
 	function($scope, $http){
 
+
 		const anglemax = 20;
         const anglemin = 10;
 
@@ -23,11 +24,15 @@ carData.controller('carController', ['$scope', '$http',
 		var isKeyleft = false;
 		var isKeyright =false;
 
+
 		$scope.init = function(){
 			$("#uparrow").attr("src","static/img/arrow-up.png");
 			$("#downarrow").attr("src","static/img/arrow-down.png");
 			$("#rightarrow").attr("src","static/img/arrow-right.png");
 			$("#leftarrow").attr("src","static/img/arrow-left.png");
+			$scope.left_odo = "";
+			$scope.right_odo = "";
+			$scope.potentiometer = "";
 		};
 
 		document.onkeyup = function(e){
@@ -98,7 +103,9 @@ carData.controller('carController', ['$scope', '$http',
 			  method: 'GET',
 			  url: '/data',
 			}).then(function successCallback(response) {
-			    console.log("get data");
+			    $scope.potentiometer = parseInt(response.data.potentiometer)-135;
+			    $scope.left_odo = response.data.left;
+			    $scope.right_odo = response.data.right;
 			  }, function errorCallback(response) {
 			    console.log("Error : " + response)
 			});
