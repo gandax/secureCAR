@@ -29,7 +29,7 @@ class DataHandler(tornado.web.RequestHandler):
 			  msg = b""
 			  msg = connection_client.recv(1024)
 			  if(msg != ""):
-			      string = msg.decode()
+			      string = msg.decode()               
 			      i = len(string)-2
 			      while(not(found)):
 			      	if(nb==0):
@@ -48,7 +48,7 @@ class DataHandler(tornado.web.RequestHandler):
 			      		elif(string[i]!='#'):
 			      			left_odo=string[i]+left_odo
 			      		else:
-			      			find=True
+			      			found=True
 			      	i-=1
 			      data = {}
 			      data['left'] = left_odo
