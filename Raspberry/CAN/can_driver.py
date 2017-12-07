@@ -77,6 +77,10 @@ class Send(Thread):
         DELAY_PERIOD = self.period #the delay period btw sending
         timeLastSend = time.time()
         isRunning = True
+        recule=False
+        avance=False
+        chgt=False
+        lastState=0
         while(isRunning):
             if(time.time() - timeLastSend >= DELAY_PERIOD):
                 msg = b""
@@ -90,9 +94,9 @@ class Send(Thread):
                             for i in range(2,4):
                                 string_direction += string[i]
                             direction = string_direction
-                            can_msg.data[0]=int(state_motor)
-                            can_msg.data[1]=int(direction)
-                            can_msg.data[2]=int(speed_command)
+                            #can_msg.data[0]=int(state_motor)
+                            #can_msg.data[1]=int(direction)
+                            #can_msg.data[2]=int(speed_command)
                 except BlockingIOError:
                     pass
 
@@ -105,13 +109,16 @@ class Send(Thread):
                           avance=False
                           chgt=False
                           speed_command=0
+                          lastState=0                                                
                     else:
                       if(int(state_motor)==2):
+                          lastState=2                            
                           avance=True
                           if(recule):
                               chgt=True
                               recule=False
                       else:
+                          lastState=1
                           recule=True
                           if(avance):
                               chgt=True
@@ -121,16 +128,21 @@ class Send(Thread):
                               speed_command+=slope_up
                       else:
                           if(speed_command>slope_down):
-                              speed_command-=slope_down
+                              speed_command-=slope_down                                                        
                           elif(speed_command<=slope_down):
                               chgt=False
                               speed_command=0
-                    print("Speed command :"+str(speed_command))
-                    print("State motor :" +state_motor)
+                              if(lastState==2):
+                                lastState=1
+                              elif(lastState==1):
+                                lastState=2
+                    can_msg.data[0]=lastState
+                    can_msg.data[1]=int(direction)
+                    can_msg.data[2]=int(speed_command)
+                    print(lastState)
+                    print(speed_command)
                     bus.send(can_msg)
                     timeLastSend = time.time()
-                    #time.sleep(0.02) #Change Delay to balance accuracy/CPU usage
-                    #print("Message sent on {}".format(bus.channel_info))
                 except can.CanError:
                     print("Message NOT sent")
 
