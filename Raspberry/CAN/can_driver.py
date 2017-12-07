@@ -6,6 +6,7 @@ import time
 from threading import Thread
 import socket
 import os
+import thread_model
 
 state_motor = 0
 speed_command = 0
@@ -15,10 +16,8 @@ slope_down =10
 max_speed=100
 
 connection_client=0
-connection_to_server=0
-
-path_data = "/tmp/data.fifo"
-fifo_data = None
+connection_to_server_server=0
+connection_to_server_model=None
 
 g_file=None
 
@@ -34,18 +33,13 @@ class Receive_listener(can.Listener):
     def __init__(self, output_file=None):
         global path
         global g_file
-        global fifo_data
         if output_file is not None:
-            #log.info("Creating log file '{}' ".format(output_file))
             output_file = open(output_file, 'wt')
         self.output_file = output_file
         g_file=output_file
-        os.mkfifo(path_data)
-        fifo_data = open(path_data, "w")
-        self.fifo = fifo_data
 
     def on_message_received(self, msg):
-        global connection_to_server
+        global connection_to_server_server
         if self.output_file is not None:
             if(msg.arbitration_id==10):
                 self.output_file.write(str(msg) + "\n")
@@ -53,8 +47,9 @@ class Receive_listener(can.Listener):
                 right_odo = msg.data[2] + (msg.data[3]<<8)
                 msg_socket = str(left_odo) +'#' + str(right_odo) +'#'+str(msg.data[4])+'#'
                 bytes_msg = msg_socket.encode()
-                connection_to_server.send(bytes_msg)
-                self.fifo.write(msg_socket+"\n")
+                connection_to_server_server.send(bytes_msg)
+                if(connection_to_server_model != None):
+                    connection_to_server_model.send(bytes_msg)
         else:
             print(msg)
 
@@ -160,20 +155,27 @@ def createServer():
     connection_client, data_connection = connection.accept()
     connection_client.setblocking(False)
 
-def connectServer():
-    global connection_to_server
+def connectServerServer():
+    global connection_to_server_server
     host = "localhost"
     port = 12801
-    connection_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    connection_to_server.connect((host, port))
+    connection_to_server_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    connection_to_server_server.connect((host, port))
     print("Connection to web server process")
-
+    
+def connectServerModel():
+    global connection_to_server_model
+    server_address = "/tmp/data_model"
+    connection_to_server_model = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    connection_to_server_model.connect(server_address)
 
 createServer()
 time.sleep(0.5)
-connectServer()
 Send(0.05)
 Receive()
+thread_model.runModel()
+time.sleep(0.5)
+connectServerModel()
 try:
     while True:
         pass
@@ -181,6 +183,7 @@ except KeyboardInterrupt:
     print("Stop")
     connection_client.close()
     connection.close()
-    connection_to_server.close()
+    connection_to_server_server.close()
+    connection_to_server_model.close()
     g_file.close()
     fifo_data.close()
