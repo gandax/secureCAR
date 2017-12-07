@@ -15,8 +15,8 @@ slope_up = 1
 slope_down =10
 max_speed=100
 
-connection_client=0
-connection_to_server_server=0
+connection_client=None
+connection_to_server_server=None
 connection_to_server_model=None
 
 g_file=None
@@ -159,20 +159,23 @@ class Receive(Thread):
 def createServer():
     global connection_client
     global connection
-    host = ''
-    port = 12800
-    connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    connection.bind((host, port))
+    server_address = "/tmp/command"
+    try:
+        os.unlink(server_address)
+        except OSError:
+            if os.path.exists(server_address):
+                raise
+    connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    connection.bind(server_address)
     connection.listen(1)
     connection_client, data_connection = connection.accept()
     connection_client.setblocking(False)
 
 def connectServerServer():
     global connection_to_server_server
-    host = "localhost"
-    port = 12801
-    connection_to_server_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    connection_to_server_server.connect((host, port))
+    server_address = "/tmp/data_server"
+    connection_to_server_server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    connection_to_server_server.connect(server_address)
     print("Connection to web server process")
     
 def connectServerModel():
