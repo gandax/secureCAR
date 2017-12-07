@@ -6,8 +6,6 @@ import time
 import json
 
 connection_to_server = 0
-host=''
-port=12801
 connection_client = None
 connection = None
 
@@ -74,8 +72,14 @@ def make_app():
 def createServerSocket():
 	global connection
 	global connection_client
-	connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	connection.bind((host, port))
+    server_address = "/tmp/data_server"
+    try:
+        os.unlink(server_address)
+        except OSError:
+            if os.path.exists(server_address):
+                raise
+    connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+	connection.bind(server_address)
 	connection.listen(1)
 	connection_client, data_connection = connection.accept()
 	connection_client.setblocking(False)
@@ -83,10 +87,9 @@ def createServerSocket():
 
 def connectSocket():
 	global connection_to_server
-	host = "localhost"
-	port = 12800
-	connection_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	connection_to_server.connect((host, port))
+	server_address = "/tmp/command"
+	connection_to_server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+	connection_to_server.connect(server_address)
 	print("Connection to CAN process")
 
 def recordCommands(data):
