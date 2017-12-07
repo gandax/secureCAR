@@ -1,4 +1,4 @@
-from testsimsim import testsimsim
+from simsim import testsimsim
 from math import pi  as pi
 ######################################################
 #parametres du test

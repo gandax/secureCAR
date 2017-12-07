@@ -5,7 +5,7 @@ Created on Thu Nov 30 11:48:29 2017
 @author: Jean-C
 """
 
-from testsimsim import testsimsim
+from simsim import testsimsim
 from math import pi  as pi
 ######################################################
 #parametres du test
