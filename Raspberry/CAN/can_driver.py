@@ -5,6 +5,7 @@ import can
 import time
 from threading import Thread
 import socket
+import os
 
 state_motor = 0
 speed_command = 0
@@ -15,6 +16,9 @@ max_speed=100
 
 connection_client=0
 connection_to_server=0
+
+path_data = "/tmp/data.fifo"
+fifo_data = None
 
 g_file=None
 
@@ -28,12 +32,17 @@ class Receive_listener(can.Listener):
     """
 
     def __init__(self, output_file=None):
+        global path
         global g_file
+        global fifo_data
         if output_file is not None:
             #log.info("Creating log file '{}' ".format(output_file))
             output_file = open(output_file, 'wt')
         self.output_file = output_file
         g_file=output_file
+        os.mkfifo(path_data)
+        fifo_data = open(path_data, "w")
+        self.fifo = fifo_data
 
     def on_message_received(self, msg):
         global connection_to_server
@@ -45,6 +54,7 @@ class Receive_listener(can.Listener):
                 msg_socket = str(left_odo) +'#' + str(right_odo) +'#'+str(msg.data[4])+'#'
                 bytes_msg = msg_socket.encode()
                 connection_to_server.send(bytes_msg)
+                self.fifo.write(msg_socket+"\n")
         else:
             print(msg)
 
@@ -87,7 +97,7 @@ class Send(Thread):
                             direction = string_direction
                             can_msg.data[0]=int(state_motor)
                             can_msg.data[1]=int(direction)
-                            #can_msg.data[2]=int(speed_command)
+                            can_msg.data[2]=int(speed_command)
                 except BlockingIOError:
                     pass
 
@@ -173,3 +183,4 @@ except KeyboardInterrupt:
     connection.close()
     connection_to_server.close()
     g_file.close()
+    fifo_data.close()
