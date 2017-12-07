@@ -29,7 +29,6 @@ from math import tan as tan
 from math import sin as sin
 from math import cos as cos
 from math import pi  as pi
-from numpy import array as array
 
 from API import relation1, relation2, relation3, relation4, relation5xc, relation5yc, relation6thetaprimevirage, relation6xprimevirage, relation6yprimevirage, relation7, relation6thetaprimetoutdroit, relation6xprimetoutdroit, relation6yprimetoutdroit
 
