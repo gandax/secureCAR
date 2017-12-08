@@ -11,7 +11,7 @@ import thread_model
 state_motor = 0
 speed_command = 0
 direction = 0
-slope_up = 1
+slope_up = 2
 slope_down =10
 max_speed=100
 
