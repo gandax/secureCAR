@@ -1,6 +1,7 @@
 import modelestep
 import os
 import sys
+import socket
 from threading import Thread
 import time
 
@@ -11,49 +12,12 @@ class runModel(Thread):
         Thread.__init__(self)
         self.daemon = True
         self.start()
-
-    def run(self):
-    
-        old_x = 0
-        old_y = 0
-        old_theta = 0
-        old_data = "0#0#134#"
-    
-        Te = 0.050 
-        Rroue = 0.195/2 
-        L = 0.57
         
-        DELAY_PERIOD = 0.05
-        
-        timeLastSend = time.time()
-        isRunning = True
-        
-        connection_client = createServer()
-        
-        while(isRunning):
-            if(time.time() - timeLastSend >= DELAY_PERIOD):
-                msg = b""
-                msg = connection_client.recv(1024)
-                if(msg != ""):
-                    string = msg.decode() 
-                    current_data = parse(string)
-                    phi1mes = current_data[0]-old_data[0]
-                    phi2mes = current_data[1]-old_data[1]
-                    alpha = current_data[2]-old_data[2]
-                    output = modelestep(phi1mes,phi2mes,alpha,old_x,old_y,old_theta,Rroue,L,Te)
-                    old_x = output[0]
-                    old_y = output[1]
-                    old_theta = output[2]
-                    old_data = current_data
-                    print(output)
-                    timeLastSend = time.time()
-        
-    def parse(string):
+    def parse(self, string):
         found = False
-        data = []
-        for i in range(3):
-            data[i]=""
+        data = ["","",""]
         i = len(string)-2
+        nb=0
         while(not(found)):
             if(nb==0):
                 if(string[i]!='#'):
@@ -75,7 +39,7 @@ class runModel(Thread):
             i-=1
         return data
     
-    def createServer():
+    def createServer(self):
         server_address = "/tmp/data_model"
         try:
             os.unlink(server_address)
@@ -88,3 +52,44 @@ class runModel(Thread):
         connection_client, data_connection = connection.accept()
         connection_client.setblocking(False)
         return connection_client
+
+    def run(self):
+    
+        old_x = 0
+        old_y = 0
+        old_theta = 0
+        old_data = self.parse("0#0#134#")
+    
+        Te = 0.050 
+        Rroue = 0.195/2 
+        L = 0.57
+        
+        DELAY_PERIOD = 0.05
+        
+        timeLastSend = time.time()
+        isRunning = True
+        
+        connection_client = self.createServer()
+        
+        while(isRunning):
+            if(time.time() - timeLastSend >= DELAY_PERIOD):
+                msg = b""
+                try:
+                    msg = connection_client.recv(1024)
+                    if(msg != ""):
+                        string = msg.decode() 
+                        current_data = self.parse(string)
+                        phi1mes = int(current_data[0])-int(old_data[0])
+                        phi2mes = int(current_data[1])-int(old_data[1])
+                        alpha = int(current_data[2]) - 134
+                        output = modelestep.modelestep(phi1mes,phi2mes,alpha,old_x,old_y,old_theta,Rroue,L,Te)
+                        old_x = output[0]
+                        old_y = output[1]
+                        old_theta = output[2]
+                        old_data = current_data
+                        print(output)
+                        timeLastSend = time.time()
+                except BlockingIOError:
+                    pass
+        
+    
