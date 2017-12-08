@@ -40,6 +40,7 @@ class Receive_listener(can.Listener):
 
     def on_message_received(self, msg):
         global connection_to_server_server
+        global connection_to_server_model
         if self.output_file is not None:
             if(msg.arbitration_id==10):
                 self.output_file.write(str(msg) + "\n")
@@ -47,7 +48,8 @@ class Receive_listener(can.Listener):
                 right_odo = msg.data[2] + (msg.data[3]<<8)
                 msg_socket = str(left_odo) +'#' + str(right_odo) +'#'+str(msg.data[4])+'#'
                 bytes_msg = msg_socket.encode()
-                connection_to_server_server.send(bytes_msg)
+                if(connection_to_server_server != None):
+                    connection_to_server_server.send(bytes_msg)
                 if(connection_to_server_model != None):
                     connection_to_server_model.send(bytes_msg)
         else:
@@ -81,6 +83,9 @@ class Send(Thread):
         avance=False
         chgt=False
         lastState=0
+        direction=0
+        state_motor=0
+        speed_command=0
         while(isRunning):
             if(time.time() - timeLastSend >= DELAY_PERIOD):
                 msg = b""
@@ -139,8 +144,6 @@ class Send(Thread):
                     can_msg.data[0]=lastState
                     can_msg.data[1]=int(direction)
                     can_msg.data[2]=int(speed_command)
-                    print(lastState)
-                    print(speed_command)
                     bus.send(can_msg)
                     timeLastSend = time.time()
                 except can.CanError:
@@ -162,9 +165,9 @@ def createServer():
     server_address = "/tmp/command"
     try:
         os.unlink(server_address)
-        except OSError:
-            if os.path.exists(server_address):
-                raise
+    except OSError:
+        if os.path.exists(server_address):
+            raise
     connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     connection.bind(server_address)
     connection.listen(1)
@@ -186,6 +189,7 @@ def connectServerModel():
 
 createServer()
 time.sleep(0.5)
+connectServerServer()
 Send(0.05)
 Receive()
 thread_model.runModel()
@@ -201,4 +205,3 @@ except KeyboardInterrupt:
     connection_to_server_server.close()
     connection_to_server_model.close()
     g_file.close()
-    fifo_data.close()
