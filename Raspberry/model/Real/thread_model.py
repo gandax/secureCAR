@@ -79,8 +79,14 @@ class runModel(Thread):
                     if(msg != ""):
                         string = msg.decode() 
                         current_data = self.parse(string)
-                        phi1mes = int(current_data[0])-int(old_data[0])
-                        phi2mes = int(current_data[1])-int(old_data[1])
+                        if(int(old_data[0])>300 and int(current_data[0])<100):
+                            phi1mes = 360 - int(old_data[0]) + int(current_data[0])
+                        else:
+                            phi1mes = int(current_data[0])-int(old_data[0])
+                        if(int(old_data[1])>300 and int(current_data[1])<100):
+                            phi2mes = 360 - int(old_data[1]) + int(current_data[1])
+                        else:
+                            phi2mes = int(current_data[1])-int(old_data[1])
                         alpha = int(current_data[2]) - 134
                         output = modelestep.modelestep(phi1mes,phi2mes,alpha,old_x,old_y,old_theta,Rroue,L,Te)
                         old_x = output[0]
