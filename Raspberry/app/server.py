@@ -72,13 +72,13 @@ def make_app():
 def createServerSocket():
 	global connection
 	global connection_client
-    server_address = "/tmp/data_server"
-    try:
-        os.unlink(server_address)
-        except OSError:
-            if os.path.exists(server_address):
-                raise
-    connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+	server_address = "/tmp/data_server"
+	try:
+	   os.unlink(server_address)
+	except OSError:
+	   if os.path.exists(server_address):
+	       raise
+	connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 	connection.bind(server_address)
 	connection.listen(1)
 	connection_client, data_connection = connection.accept()
