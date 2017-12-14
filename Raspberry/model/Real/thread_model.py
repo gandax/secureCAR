@@ -8,9 +8,11 @@ import time
 class runModel(Thread):
        
     
-    def __init__(self):
+    def __init__(self, entry_file, output_file):
         Thread.__init__(self)
         self.daemon = True
+        self.entry_file = entry_file
+        self.output_file = output_file
         self.start()
         
     def parse(self, string):
@@ -79,16 +81,18 @@ class runModel(Thread):
                     if(msg != ""):
                         string = msg.decode() 
                         current_data = self.parse(string)
-                        if(int(old_data[0])>300 and int(current_data[0])<100):
+                        if(int(current_data[0])-int(old_data[0])<0):
                             phi1mes = 360 - int(old_data[0]) + int(current_data[0])
                         else:
                             phi1mes = int(current_data[0])-int(old_data[0])
-                        if(int(old_data[1])>300 and int(current_data[1])<100):
+                        if(int(current_data[1])-int(old_data[1])<0):
                             phi2mes = 360 - int(old_data[1]) + int(current_data[1])
                         else:
                             phi2mes = int(current_data[1])-int(old_data[1])
                         alpha = int(current_data[2]) - 134
+                        self.entry_file.write(str(phi1mes) + "#" + str(phi2mes) + "#" + str(alpha) + "#" + str(old_x) + "#" + str(old_y) + "#" + str(old_theta) + "#" + str(Rroue) + "#" + str(L)+ "#" + str(Te))
                         output = modelestep.modelestep(phi1mes,phi2mes,alpha,old_x,old_y,old_theta,Rroue,L,Te)
+                        self.output_file.write(str(output[0])+ "#" + str(output[1])+ "#" +str(output[2]))
                         old_x = output[0]
                         old_y = output[1]
                         old_theta = output[2]
