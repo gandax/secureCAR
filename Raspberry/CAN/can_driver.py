@@ -194,7 +194,7 @@ Send(0.05)
 Receive()
 entries_file = open("../entries.txt", 'wt')
 model_output_file = open("../output.txt", 'wt')
-thread_model.runModel(entries_file, output_file)
+thread_model.runModel(entries_file, model_output_file)
 time.sleep(0.5)
 connectServerModel()
 try:
