@@ -103,9 +103,9 @@ carData.controller('carController', ['$scope', '$http',
 			  method: 'GET',
 			  url: '/data',
 			}).then(function successCallback(response) {
-			    $scope.potentiometer = parseInt(response.data.potentiometer)-135;
-			    $scope.left_odo = response.data.left;
-			    $scope.right_odo = response.data.right;
+			    $scope.potentiometer = response.data.potentiometer+"°";
+			    $scope.left_odo = response.data.left+"°";
+			    $scope.right_odo = response.data.right+"°";
 			  }, function errorCallback(response) {
 			    console.log("Error : " + response)
 			});
