@@ -60,7 +60,7 @@ class runModel(Thread):
         old_x = 0
         old_y = 0
         old_theta = 0
-        old_data = self.parse("0#0#134#")
+        old_data = self.parse("0#0#0#")
     
         Te = 0.050 
         Rroue = 0.195/2 
@@ -89,7 +89,7 @@ class runModel(Thread):
                             phi2mes = 360 - int(old_data[1]) + int(current_data[1])
                         else:
                             phi2mes = int(current_data[1])-int(old_data[1])
-                        alpha = int(current_data[2])
+                        alpha = float(current_data[2])*3.14/180;
                         self.entry_file.write(str(phi1mes) + "#" + str(phi2mes) + "#" + str(alpha) + "#" + str(old_x) + "#" + str(old_y) + "#" + str(old_theta) + "#" + str(Rroue) + "#" + str(L)+ "#" + str(Te)+"#\n")
                         output = modelestep.modelestep(phi1mes,phi2mes,alpha,old_x,old_y,old_theta,Rroue,L,Te)
                         self.output_file.write(str(output[0])+ "#" + str(output[1])+ "#" +str(output[2])+"#\n")

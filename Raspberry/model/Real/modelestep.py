@@ -36,7 +36,7 @@ def modelestep(phi1mes,phi2mes,alpha,x,y,theta,Rroue,L,Te):
     d1mes = relation1(Rroue,phi1mes)
     d2mes = relation1(Rroue,phi2mes)
     d = relation2(d1mes,d2mes)
-    if abs(alpha) < 5*pi/180:
+    if abs(alpha) < 3.14/180:
         xprime = relation6xprimetoutdroit(x,d,theta)
         yprime = relation6yprimetoutdroit(y,d,theta)
         thetaprime = relation6thetaprimetoutdroit(theta)
