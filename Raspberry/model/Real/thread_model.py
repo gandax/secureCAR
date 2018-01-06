@@ -55,12 +55,19 @@ class runModel(Thread):
         connection_client.setblocking(False)
         return connection_client
 
+    def connectServer(self):
+    	server_address = "/tmp/output_model"
+    	connection_to_server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    	connection_to_server.connect(server_address)
+    	print("Connection to Server")
+    	return connection_to_server
+
     def run(self):
     
         old_x = 0
         old_y = 0
         old_theta = 0
-        old_data = self.parse("0#0#0#")
+        old_data = self.parse("0#0#134#")
     
         Te = 0.050 
         Rroue = 0.195/2 
@@ -72,6 +79,7 @@ class runModel(Thread):
         isRunning = True
         
         connection_client = self.createServer()
+        connection_to_server = self.connectServer()
         
         while(isRunning):
             if(time.time() - timeLastSend >= DELAY_PERIOD):
@@ -89,17 +97,17 @@ class runModel(Thread):
                             phi2mes = 360 - int(old_data[1]) + int(current_data[1])
                         else:
                             phi2mes = int(current_data[1])-int(old_data[1])
-                        alpha = float(current_data[2])*3.14/180;
+                        alpha = int(current_data[2])
                         self.entry_file.write(str(phi1mes) + "#" + str(phi2mes) + "#" + str(alpha) + "#" + str(old_x) + "#" + str(old_y) + "#" + str(old_theta) + "#" + str(Rroue) + "#" + str(L)+ "#" + str(Te)+"#\n")
                         output = modelestep.modelestep(phi1mes,phi2mes,alpha,old_x,old_y,old_theta,Rroue,L,Te)
-                        self.output_file.write(str(output[0])+ "#" + str(output[1])+ "#" +str(output[2])+"#\n")
+                        self.output_file.write(str(output[0])+ "#" + str(output[1])+ "#" + str(output[2])+"#\n")
                         old_x = output[0]
                         old_y = output[1]
                         old_theta = output[2]
                         old_data = current_data
-                        print(output)
+                        msg = str(old_x) + "#"
+                        connection_to_server.send(msg.encode())			
+                        #print(output)
                         timeLastSend = time.time()
                 except BlockingIOError:
                     pass
-        
-    
