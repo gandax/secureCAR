@@ -1,0 +1,8 @@
+[Unit]
+After=network.target
+
+[Service]
+ExecStart=/home/root/connect.sh
+
+[Install]
+WantedBy=default.target
