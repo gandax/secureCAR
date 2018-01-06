@@ -1,28 +1,5 @@
-# Calcul d’un step du modèle odométrique 
-#Entrées:
-#-phi1mes: variation de l'angle mesurée sur l'odomètre de la roue 1 en une période
-#         d'échantillonnage, en degrés.
-#-phi2mes: variation de l'angle mesurée sur l'odomètre de la roue 2 en une période
-#         d'échantillonnage, en degrés.
-#-alpha: angle du volant mesuré sur le potard, positif q-
-#        uand il est tourné vers la gauche,en radians.
-#-x    : position en abscisse du centre du train arrière de la voiture,
-#        à l'instant t, en mètres.
-#-y    : position en ordonnée du centre du train arrière de la voiture,
-#        à l'instant t, en mètres.
-#-theta: angle de la voiture par rapport à l'horizontale (voir schéma s-
-#        ur le Drive) à l'instant t, en radians.
-#-Rroue : rayon de la roue, en mètres.
-#-L    : longueur entre le train arrière et le train avant de la voitu-
-#        re, en mètres.
-#-Te: période d'échantillonnage Te, en secondes.
+#coding : utf8
 
-#Sortie:
-#-liste_return: liste contenant:
-#   -xprime: position en abscisse du centre du train arrière de la voiture à l'instant t+Te, en mètres.
-#   -yprime: position en ordonnée du centre du train arrière de la voiture à l'instant t+Te, en mètres.
-#   -thetaprime: angle de la voiture par rapport à l'horizontale à l'instant t+Te (voir modèle papier sur le Drive), en radians.
-#   -v: vitesse moyenne de la voiture durant la période d'échantillonnage Te.
 
 
 from math import tan as tan
