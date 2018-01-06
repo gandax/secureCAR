@@ -6,8 +6,10 @@ import time
 import json
 
 connection_to_server = 0
-connection_client = None
-connection = None
+connection_client_can = None
+connection_can = None
+connection_client_model = None
+connection_model = None
 
 class MainHandler(tornado.web.RequestHandler):
 	def get(self):
@@ -16,18 +18,20 @@ class MainHandler(tornado.web.RequestHandler):
 class DataHandler(tornado.web.RequestHandler):
 	def get(self):
 		if(self!=None):
-			global connection_client
+			global connection_client_can
+			global connection_client_model
 	        found = False
 	        nb = 0
 	        potentiometer = ""
 	        left_odo = ""
 	        right_odo = ""
+	        x = ""
 	        json_data = None
-	        if(connection_client!=None):
+	        if(connection_client_can!=None):
 			  msg = b""
-			  msg = connection_client.recv(1024)
+			  msg = connection_client_can.recv(1024)
 			  if(msg != ""):
-			      string = msg.decode()               
+			      string = msg.decode()		          	               
 			      i = len(string)-2
 			      while(not(found)):
 			      	if(nb==0):
@@ -52,6 +56,20 @@ class DataHandler(tornado.web.RequestHandler):
 			      data['left'] = left_odo
 			      data['right'] = right_odo
 			      data['potentiometer'] = potentiometer
+			      if(connection_client_model!=None):
+			          msg = b""
+			          msg = connection_client_model.recv(1024)
+			          if(msg != ""):
+			          	string = msg.decode()
+			          	found = False
+			          	i = len(string)-2
+			          	while(not(found)):
+			          		if(string[i] != '#'):
+			          			x = string[i]+x
+			          		else:
+			          			found = True
+			          		i -= 1
+			          	data['x'] = x															
 			      json_data = json.dumps(data)
 	        self.write(json_data)		      
 
@@ -70,19 +88,32 @@ def make_app():
 	)
 
 def createServerSocket():
-	global connection
-	global connection_client
-	server_address = "/tmp/data_server"
+	global connection_can
+	global connection_client_can
+	global connection_model
+	global connection_client_model
+	server_can_address = "/tmp/data_server"
 	try:
-	   os.unlink(server_address)
+	   os.unlink(server_can_address)
 	except OSError:
-	   if os.path.exists(server_address):
+	   if os.path.exists(server_can_address):
 	       raise
-	connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-	connection.bind(server_address)
-	connection.listen(1)
-	connection_client, data_connection = connection.accept()
-	connection_client.setblocking(False)
+	connection_can = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+	connection_can.bind(server_can_address)
+	connection_can.listen(1)
+	connection_client_can, data_connection = connection_can.accept()
+	connection_client_can.setblocking(False)
+	server_model_address = "/tmp/output_model"
+	try:
+	   os.unlink(server_model_address)
+	except OSError:
+	   if os.path.exists(server_model_address):
+	       raise
+	connection_model = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+	connection_model.bind(server_model_address)
+	connection_model.listen(1)
+	connection_client_model, data_connection = connection_model.accept()
+	connection_client_model.setblocking(False)
 
 
 def connectSocket():
@@ -113,4 +144,3 @@ if __name__ == "__main__":
 	   connection_to_server.close()
 	   connection_client.close()
 	   connection.close()
-
