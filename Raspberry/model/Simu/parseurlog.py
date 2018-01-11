@@ -1,7 +1,7 @@
 #coding : utf8
 import numpy as np
 
-def parseurlog2(filename,n):
+def parseurlog(filename,n):
 
 	
 	file = open(filename,'r')
