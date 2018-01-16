@@ -8,11 +8,16 @@ import socket
 import os
 import thread_model
 
+# Variables pour savoir dans quel sens vont les moteurs (0 = arret, 1 = marche arriere et 2 = marche avant)
 state_motor = 0
 speed_command = 0
+# Commande sur le volant
 direction = 0
+# Valeur pour le calcul de la pente en acceleration
 slope_up = 2
+# Valeur pour le calcul de la pente en deceleration
 slope_down =10
+
 max_speed=100
 
 connection_client=None
@@ -25,17 +30,13 @@ lastState = 0
 nb_message = 1
 
 
+# Classe pour gerer la reception de message sur le CAN
 class Receive_listener(can.Listener):
-    """
-    The Printer class is a subclass of :class:`~can.Listener` which simply prints
-    any messages it receives to the terminal.
-
-    :param output_file: An optional file to "print" to.
-    """
 
     def __init__(self, output_file=None):
         global path
         global g_file
+        # Creation d'un fichier pour enregistrer les donnees venant du CAN
         if output_file is not None:
             output_file = open(output_file, 'wt')
         self.output_file = output_file
@@ -46,14 +47,18 @@ class Receive_listener(can.Listener):
         global connection_to_server_model
         global nb_message
         if self.output_file is not None:
+            # si le message vient du stm32
             if(msg.arbitration_id==10):
+                # on ecrit dans le fichier
                 self.output_file.write(str(msg) + "\n")
+                # on ecrit les recupere les donnees du message et on les concatene
                 left_odo = msg.data[0] + (msg.data[1]<<8)
                 right_odo = msg.data[2] + (msg.data[3]<<8)
                 potentiometer = int(int(msg.data[4]-135)*35/48)
                 msg_socket = str(nb_message) + '#' + str(left_odo) +'#' + str(right_odo) +'#'+str(potentiometer)+'#'
                 nb_message += 1
                 bytes_msg = msg_socket.encode()
+                # On envoie ces donnees au serveur et au modele via des sockets
                 if(connection_to_server_server != None):
                     connection_to_server_server.send(bytes_msg)
                 if(connection_to_server_model != None):
@@ -66,6 +71,7 @@ class Receive_listener(can.Listener):
         if self.output_file:
             self.output_file.close()
 
+# Classe gerant l'envoi de message sur le CAN            
 class Send(Thread):
     def __init__(self, period):
         Thread.__init__(self)
@@ -82,8 +88,8 @@ class Send(Thread):
         can_msg = can.Message(arbitration_id=0x14,
                               data=[0, 0, 0],
                               extended_id=False)
-
-        DELAY_PERIOD = self.period #the delay period btw sending
+        # Valeur de la periode d'envoi des messages
+        DELAY_PERIOD = self.period 
         timeLastSend = time.time()
         isRunning = True
         recule=False
@@ -94,28 +100,32 @@ class Send(Thread):
         state_motor=0
         speed_command=0
         while(isRunning):
+            # A chaque periode
             if(time.time() - timeLastSend >= DELAY_PERIOD):
                 msg = b""
                 try:
+                    # Lecture des donnees venant du serveur web via le socket
                     msg = connection_client.recv(1024)
                     if(msg != ""):
                         string = msg.decode()
+                        # Parsage des donnees
                         if(len(string)>0):
                             state_motor = string[0]
                             string_direction = ""
                             for i in range(2,4):
                                 string_direction += string[i]
                             direction = string_direction
-                            #can_msg.data[0]=int(state_motor)
-                            #can_msg.data[1]=int(direction)
-                            #can_msg.data[2]=int(speed_command)
+                # si rien sur le socket, on ne fait rien
                 except BlockingIOError:
                     pass
 
                 try:
+                    # si on ne veut plus avancer
                     if(int(state_motor)==0):
+                        # si on avance encore, on decremente jusqu'a attendre une vitesse nulle
                       if(speed_command>slope_down):
                           speed_command-=slope_down
+                        # si on a atteint une vitesse nulle, on reinitialise les variables
                       elif(speed_command<=slope_down):
                           recule=False
                           avance=False
@@ -123,21 +133,26 @@ class Send(Thread):
                           speed_command=0
                           lastState=0                                                
                     else:
+                      # Si on veut avancer                        
                       if(int(state_motor)==2):
                           lastState=2                            
                           avance=True
+                          # si on reculait => il y a changement de sens  
                           if(recule):
                               chgt=True
                               recule=False
+                      # Inversement quand on veut reculer                    
                       else:
                           lastState=1
                           recule=True
                           if(avance):
                               chgt=True
                               avance=False
+                      # si pas de changement => on augmente la vitesse tant qu'elle n'a pas atteint le maximum
                       if(not(chgt)):
                           if(speed_command<max_speed):
                               speed_command+=slope_up
+                      # sinon => on diminue la vitesse jusqu'a atteindre 0 avant de reprendre un comportement normal
                       else:
                           if(speed_command>slope_down):
                               speed_command-=slope_down                                                        
@@ -148,6 +163,7 @@ class Send(Thread):
                                 lastState=1
                               elif(lastState==1):
                                 lastState=2
+                    # envoi des donnees sur le CAN                                
                     can_msg.data[0]=lastState
                     can_msg.data[1]=int(direction)
                     can_msg.data[2]=int(speed_command)
@@ -166,6 +182,7 @@ class Receive(Thread):
         bus = can.interface.Bus(channel='can0', bustype='socketcan_native')
         notifier = can.Notifier(bus, [Receive_listener("../log.txt")])
 
+# Creation du serveur socket pour que le serveur web puisse envoyer des commandes        
 def createServer():
     global connection_client
     global connection
@@ -181,6 +198,7 @@ def createServer():
     connection_client, data_connection = connection.accept()
     connection_client.setblocking(False)
 
+# Connexion au socket du serveur web pour envoyer les donnees de la voiture    
 def connectServerServer():
     global connection_to_server_server
     server_address = "/tmp/data_server"
@@ -188,6 +206,7 @@ def connectServerServer():
     connection_to_server_server.connect(server_address)
     print("Connection to web server process")
     
+# Connexion au socket du modele pour envoyer les donnees de la voiture      
 def connectServerModel():
     global connection_to_server_model
     server_address = "/tmp/data_model"

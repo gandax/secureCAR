@@ -1,6 +1,8 @@
 #coding : utf8
 import numpy as np
 
+# Fonction qui parse le fichier contenant les entrees du modele
+
 def parseurlog(filename,n):
 
 	

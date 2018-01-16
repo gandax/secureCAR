@@ -11,11 +11,13 @@ connection_can = None
 connection_client_model = None
 connection_model = None
 
+# Afficher index.html quand on se connecte au serveur
 class MainHandler(tornado.web.RequestHandler):
 	def get(self):
 		self.render("index.html")
 
 class DataHandler(tornado.web.RequestHandler):
+    #Fonction declencher quand le client demande les informations venant de la voiture
 	def get(self):
 		if(self!=None):
 			global connection_client_can
@@ -29,11 +31,14 @@ class DataHandler(tornado.web.RequestHandler):
             y = ""
             theta = ""
 	        json_data = None
+            
+            # Lecture des donnees venant du CAN
 	        if(connection_client_can!=None):
 			  msg = b""
 			  msg = connection_client_can.recv(1024)
 			  if(msg != ""):
-			      string = msg.decode()		          	               
+			      string = msg.decode()
+			      # Parsage des donnees presentes sur le socket
 			      i = len(string)-2
 			      while(not(found)):
 			      	if(nb==0):
@@ -58,11 +63,13 @@ class DataHandler(tornado.web.RequestHandler):
 			      data['left'] = left_odo
 			      data['right'] = right_odo
 			      data['potentiometer'] = potentiometer
+			      # Lecture des donnees venant du modele
 			      if(connection_client_model!=None):
 			          msg = b""
 			          msg = connection_client_model.recv(1024)
 			          if(msg != ""):
 			          	string = msg.decode()
+                        # Parsage des donnees
 			          	found = False
 			          	nb = 0
 			          	i = len(string)-2
@@ -86,13 +93,16 @@ class DataHandler(tornado.web.RequestHandler):
 			          	data['x'] = x
                         data['y'] = y
                         data['theta'] = theta
+			      # Envoi des donnees au client au format json                
 			      json_data = json.dumps(data)
 	        self.write(json_data)		      
 
+	# Fonction declenchee quand le client envoie les commandes            
 	def post(self):
 		recordCommands(tornado.escape.json_decode(self.request.body));
 		self.write("");
 
+# Initialisation du serveur        
 def make_app():
 	settings = dict(
             static_path=os.path.join(os.path.dirname(__file__), "static"),
@@ -103,11 +113,14 @@ def make_app():
 	], **settings
 	)
 
+# Creation des serveurs pour lire les donnees venant du CAN et du modele
 def createServerSocket():
 	global connection_can
 	global connection_client_can
 	global connection_model
 	global connection_client_model
+    
+    # Serveur pour le CAN
 	server_can_address = "/tmp/data_server"
 	try:
 	   os.unlink(server_can_address)
@@ -119,6 +132,8 @@ def createServerSocket():
 	connection_can.listen(1)
 	connection_client_can, data_connection = connection_can.accept()
 	connection_client_can.setblocking(False)
+    
+    # Serveur pour le modele
 	server_model_address = "/tmp/output_model"
 	try:
 	   os.unlink(server_model_address)
@@ -132,6 +147,7 @@ def createServerSocket():
 	connection_client_model.setblocking(False)
 
 
+# Fonction pour se connecter au serveur du socket pour le CAN    
 def connectSocket():
 	global connection_to_server
 	server_address = "/tmp/command"
@@ -139,6 +155,7 @@ def connectSocket():
 	connection_to_server.connect(server_address)
 	print("Connection to CAN process")
 
+# Envoi des donnees (commandes) au thread gerant le CAN via le socket    
 def recordCommands(data):
 	global connection_to_server
 	print(data)

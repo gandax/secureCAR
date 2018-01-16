@@ -5,8 +5,9 @@ import socket
 from threading import Thread
 import time
 
-class runModel(Thread):
-       
+# Calcul du modele avec les donnees venant de la voiture
+
+class runModel(Thread):       
     
     def __init__(self, entry_file, output_file):
         Thread.__init__(self)
@@ -15,6 +16,7 @@ class runModel(Thread):
         self.output_file = output_file
         self.start()
         
+    # Parsage des donnees presentes sur le socket et venant du STM32
     def parse(self, string):
         found = False
         data = ["","","",""]
@@ -46,6 +48,7 @@ class runModel(Thread):
             i-=1
         return data
     
+    # Creation du serveur pour recuperer les donnees qui viennent du CAN
     def createServer(self):
         server_address = "/tmp/data_model"
         try:
@@ -60,13 +63,15 @@ class runModel(Thread):
         connection_client.setblocking(False)
         return connection_client
 
+    # Connexion au serveur socket du serveur web pour envoyer les sorties du modeles 
     def connectServer(self):
     	server_address = "/tmp/output_model"
     	connection_to_server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     	connection_to_server.connect(server_address)
     	print("Connection to Server")
     	return connection_to_server
-
+    
+    
     def run(self):
     
         old_x = 0
@@ -89,14 +94,18 @@ class runModel(Thread):
         old_nb = 0
         
         while(isRunning):
+            # Tous les 50ms => iteration du calcul
             if(time.time() - timeLastSend >= DELAY_PERIOD):
                 msg = b""
                 try:
+                    # Recuperation des donnees venant du CAN
                     msg = connection_client.recv(1024)
                     if(msg != ""):
                         string = msg.decode()
-                        print(string)
                         current_data = self.parse(string)
+                        
+                        # Gestion de la valeur des odometres quand un tour a ete fait
+                        # (on considere que l'on va toujours en marche avant)
                         if(int(current_data[1])-int(old_data[1])<0):
                             phi1mes = 360 - int(old_data[1]) + int(current_data[1])
                         else:
@@ -105,20 +114,26 @@ class runModel(Thread):
                             phi2mes = 360 - int(old_data[2]) + int(current_data[2])
                         else:
                             phi2mes = int(current_data[2])-int(old_data[2])
+                        
+                        #Conversion de l'angle en radians
                         alpha = float(current_data[3])*3.14/180
+                        # Calcul de l'ecart de numero entre le dernier message et le message actuel pour ajuster la periode T
                         nb = float(current_data[0])
                         T = TE * (nb - old_nb)
                         old_nb = nb
+                        #Ecriture des entrees du modele dans un fichier
                         self.entry_file.write(str(phi1mes) + "#" + str(phi2mes) + "#" + str(alpha) + "#" + str(old_x) + "#" + str(old_y) + "#" + str(old_theta) + "#" + str(Rroue) + "#" + str(L)+ "#" + str(T)+"#\n")
+                        #Calcul du modele
                         output = modelestep.modelestep(phi1mes,phi2mes,alpha,old_x,old_y,old_theta,Rroue,L,T)
+                        #Ecriture des sorties du modele dans un fichier
                         self.output_file.write(str(output[0])+ "#" + str(output[1])+ "#" + str(output[2])+"#\n")
                         old_x = output[0]
                         old_y = output[1]
                         old_theta = output[2]
                         old_data = current_data
+                        # Ecriture des sorties du modele sur le socket du serveur web
                         msg = str(old_x) + "#" + str(old_y) + "#" + str(old_theta*180/3.14) + "#"
                         connection_to_server.send(msg.encode())			
-                        #print(output)
                         timeLastSend = time.time()
                 except BlockingIOError:
                     pass
