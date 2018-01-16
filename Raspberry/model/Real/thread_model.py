@@ -116,7 +116,7 @@ class runModel(Thread):
                         old_y = output[1]
                         old_theta = output[2]
                         old_data = current_data
-                        msg = str(old_x) + "#"
+                        msg = str(old_x) + "#" + str(old_y) + "#" + str(old_theta) + "#"
                         connection_to_server.send(msg.encode())			
                         #print(output)
                         timeLastSend = time.time()
