@@ -21,6 +21,9 @@ connection_to_server_model=None
 
 g_file=None
 
+lastState = 0
+nb_message = 1
+
 
 class Receive_listener(can.Listener):
     """
@@ -41,13 +44,15 @@ class Receive_listener(can.Listener):
     def on_message_received(self, msg):
         global connection_to_server_server
         global connection_to_server_model
+        global nb_message
         if self.output_file is not None:
             if(msg.arbitration_id==10):
                 self.output_file.write(str(msg) + "\n")
                 left_odo = msg.data[0] + (msg.data[1]<<8)
                 right_odo = msg.data[2] + (msg.data[3]<<8)
                 potentiometer = int(int(msg.data[4]-135)*35/48)
-                msg_socket = str(left_odo) +'#' + str(right_odo) +'#'+str(potentiometer)+'#'
+                msg_socket = str(nb_message) + '#' + str(left_odo) +'#' + str(right_odo) +'#'+str(potentiometer)+'#'
+                nb_message += 1
                 bytes_msg = msg_socket.encode()
                 if(connection_to_server_server != None):
                     connection_to_server_server.send(bytes_msg)
@@ -72,6 +77,7 @@ class Send(Thread):
         global connection_client
         global state_motor
         global speed_command
+        global lastState
         bus = can.interface.Bus(channel='can0', bustype='socketcan_native')
         can_msg = can.Message(arbitration_id=0x14,
                               data=[0, 0, 0],
