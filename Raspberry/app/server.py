@@ -28,8 +28,8 @@ class DataHandler(tornado.web.RequestHandler):
 	        left_odo = ""
 	        right_odo = ""
 	        x = ""
-            y = ""
-            theta = ""
+                y = ""
+                theta = ""
 	        json_data = None
             
             # Lecture des donnees venant du CAN
@@ -69,30 +69,30 @@ class DataHandler(tornado.web.RequestHandler):
 			          msg = connection_client_model.recv(1024)
 			          if(msg != ""):
 			          	string = msg.decode()
-                        # Parsage des donnees
+                                        # Parsage des donnees
 			          	found = False
 			          	nb = 0
 			          	i = len(string)-2
 			          	while(not(found)):
-                            if(nb==0):
-                                if(string[i]!='#'):
-                                    theta = string[i] + theta
-                                else:
-                                    nb+=1
-                            elif(nb==1):
-                                if(string[i]!='#'):
-                                    y = string[i] + y
-                                else:
-                                    nb+=1
-                            elif(nb==2):
-                                if(string[i] != '#'):
-                                    x = string[i]+x
-                                else:
-                                    found = True
-			          		i -= 1
+                                          if(nb==0):
+                                            if(string[i]!='#'):
+                                              theta = string[i] + theta
+                                            else:
+                                              nb+=1
+                                          elif(nb==1):
+                                            if(string[i]!='#'):
+                                              y = string[i] + y
+                                            else:
+                                               nb+=1
+                                          elif(nb==2):
+                                            if(string[i] != '#'):
+                                              x = string[i]+x
+                                            else:
+                                              found = True
+			                  i -= 1
 			          	data['x'] = x
-                        data['y'] = y
-                        data['theta'] = theta
+                                        data['y'] = y
+                                        data['theta'] = theta
 			      # Envoi des donnees au client au format json                
 			      json_data = json.dumps(data)
 	        self.write(json_data)		      
