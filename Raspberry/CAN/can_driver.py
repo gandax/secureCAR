@@ -55,14 +55,19 @@ class Receive_listener(can.Listener):
                 left_odo = msg.data[0] + (msg.data[1]<<8)
                 right_odo = msg.data[2] + (msg.data[3]<<8)
                 potentiometer = int(int(msg.data[4]-135)*35/48)
-                msg_socket = str(nb_message) + '#' + str(left_odo) +'#' + str(right_odo) +'#'+str(potentiometer)+'#'
+                gyroscope = msg.data[6] + (msg.data[7]<<8)
+                if(gyroscope > 32767):
+                    gyroscope = (65536-gyroscope) * -1
+                msg_socket_server = str(nb_message) + '#' + str(left_odo) +'#' + str(right_odo) +'#'+str(potentiometer)+'#'+str(gyroscope)+'#'
+                msg_socket_model = str(nb_message) + '#' + str(left_odo) +'#' + str(right_odo) +'#'+str(potentiometer)+'#'
                 nb_message += 1
-                bytes_msg = msg_socket.encode()
+                bytes_msg_server = msg_socket_server.encode()
+                bytes_msg_model = msg_socket_model.encode()
                 # On envoie ces donnees au serveur et au modele via des sockets
                 if(connection_to_server_server != None):
-                    connection_to_server_server.send(bytes_msg)
+                    connection_to_server_server.send(bytes_msg_server)
                 if(connection_to_server_model != None):
-                    connection_to_server_model.send(bytes_msg)
+                    connection_to_server_model.send(bytes_msg_model)
         else:
             print(msg)
 

@@ -30,6 +30,8 @@ class DataHandler(tornado.web.RequestHandler):
 	        x = ""
                 y = ""
                 theta = ""
+                gyroscope = ""
+                gap = ""
 	        json_data = None
             
             # Lecture des donnees venant du CAN
@@ -41,17 +43,22 @@ class DataHandler(tornado.web.RequestHandler):
 			      # Parsage des donnees presentes sur le socket
 			      i = len(string)-2
 			      while(not(found)):
-			      	if(nb==0):
-			      		if(string[i]!='#'):
-			      			potentiometer=string[i]+potentiometer
+                                if(nb==0):
+                                        if(string[i]!='#'):
+			      			gyroscope=string[i]+gyroscope
 			      		else:
 			      			nb+=1
 			      	elif(nb==1):
 			      		if(string[i]!='#'):
-			      			right_odo=string[i]+right_odo
+			      			potentiometer=string[i]+potentiometer
 			      		else:
 			      			nb+=1
 			      	elif(nb==2):
+			      		if(string[i]!='#'):
+			      			right_odo=string[i]+right_odo
+			      		else:
+			      			nb+=1
+			      	elif(nb==3):
 			      		if(i<0):
 			      			found=True
 			      		elif(string[i]!='#'):
@@ -63,6 +70,7 @@ class DataHandler(tornado.web.RequestHandler):
 			      data['left'] = left_odo
 			      data['right'] = right_odo
 			      data['potentiometer'] = potentiometer
+			      data['gyroscope'] = gyroscope                    
 			      # Lecture des donnees venant du modele
 			      if(connection_client_model!=None):
 			          msg = b""
@@ -93,6 +101,7 @@ class DataHandler(tornado.web.RequestHandler):
 			          	data['x'] = x
                                         data['y'] = y
                                         data['theta'] = theta
+                                        data['gap'] = abs(data['theta'] - data['gyroscope'])
 			      # Envoi des donnees au client au format json                
 			      json_data = json.dumps(data)
 	        self.write(json_data)		      

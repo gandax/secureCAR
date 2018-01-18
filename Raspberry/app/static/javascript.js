@@ -132,9 +132,11 @@ carData.controller('carController', ['$scope', '$http',
 			    $scope.potentiometer = response.data.potentiometer+"°";
 			    $scope.left_odo = response.data.left+"°";
 			    $scope.right_odo = response.data.right+"°";
+                $scope.gyroscope = response.data.gyroscope+"°";
 			    $scope.x = response.data.x.substr(0,4) + " m";
                 $scope.y = response.data.y.substr(0,4) + " m";
                 $scope.theta = response.data.theta.substr(0,4) + "°";
+                $scope.gap = response.data.gap.substr(0,4) + "°";
 			  }, function errorCallback(response) {
 			    console.log("Error : " + response)
 			});
