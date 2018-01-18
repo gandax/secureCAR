@@ -19,3 +19,8 @@ This model needs as entries:
 The calculation of the model is made through the file modelestep.py which needs to be called for each iteration of the model.
 
 Different simulation-to-simulation tests can be compute with the file test.py. Thanks to them, we can check the consistency of the output of the model. 
+
+Plot of XY chart and plot of Theta can be displayed by puttung the entries of the model in a entries.txt file and sending the command :
+``` 
+    python debugreal.py
+```     
