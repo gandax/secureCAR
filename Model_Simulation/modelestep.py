@@ -1,4 +1,6 @@
-# Calcul d’un step du modele odometrique 
+#coding : utf8
+
+# Calcul d un step du modele odometrique
 #Entrees:
 #-phi1mes: variation de l'angle mesuree sur l'odometre de la roue 1 en une periode
 #         d'echantillonnage, en degres.
@@ -49,8 +51,7 @@ def modelestep(phi1mes,phi2mes,alpha,x,y,theta,Rroue,L,Te):
         yprime = relation6yprimevirage(yc,R,theta,beta)
         thetaprime = relation6thetaprimevirage(theta,beta)
     v = relation7(xprime,yprime,x,y,d,Te)
-    
+
     liste_return = [xprime,yprime,thetaprime,v]
 
     return liste_return
-

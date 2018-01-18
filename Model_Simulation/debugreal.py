@@ -26,21 +26,25 @@ Te=0.05
 k=0
 
 for i in data:
-	output =modelestep(float(i[0]),float(i[1]),float(i[2]),float(i[3]),float(i[4]),float(i[5]),float(i[6]),float(i[7]),float(i[8]))
-	tabx.append(output[0])
-	taby.append(output[1])
-	tabtheta.append(output[2]*180/3.14)
-	tabv.append(output[3])
-	tabt.append(Te*(k))
+	tabx.append(float(i[3]))
+	taby.append(float(i[4]))
+	tabtheta.append(float(i[5])*180/3.14)
+	if(k==0):
+		tabt.append(0.0)
+	else:
+		tabt.append(float(i[8])+tabt[k-1])
 	k+=1
-    
-plt.figure()
+
+fig = plt.figure()
 plt.plot(tabx,taby,'ro')
-plt.title("Y en fonction de X")
+plt.title("Position of the car")
+plt.xlabel('X (meters)')
+plt.ylabel('Y (meters)')
 plt.show()
 plt.figure()
 plt.plot(tabt,tabtheta,'ro')
-plt.title("Theta en fonction de T")
+plt.title("Angle of the car")
+plt.xlabel('Theta (degrees)')
+plt.ylabel('t (seconds)')
 plt.show()
 plt.figure()
-
