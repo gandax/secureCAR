@@ -12,7 +12,7 @@ connection_client_model = None
 connection_model = None
 oldTheta = 0
 oldGyroscope = 0
-oldNum = 0
+
 
 
 # Afficher index.html quand on se connecte au serveur
@@ -28,7 +28,6 @@ class DataHandler(tornado.web.RequestHandler):
 			global connection_client_model
 			global oldTheta
 			global oldGyroscope
-			global oldNum
 	        found = False
 	        nb = 0
 	        potentiometer = ""
@@ -39,8 +38,6 @@ class DataHandler(tornado.web.RequestHandler):
 	        theta = ""
 	        gyroscope = ""
 	        gap = ""
-			Tm = ""
-			num = ""
 	        json_data = None
             
             # Lecture des donnees venant du CAN
@@ -52,8 +49,8 @@ class DataHandler(tornado.web.RequestHandler):
 			      # Parsage des donnees presentes sur le socket
 			      i = len(string)-2
 			      while(not(found)):
-                    if(nb==0):
-                        if(string[i]!='#'):
+		                if(nb==0):
+                			        if(string[i]!='#'):
 							gyroscope=string[i]+gyroscope
 						else:
 							nb+=1
@@ -67,16 +64,9 @@ class DataHandler(tornado.web.RequestHandler):
 			      			right_odo=string[i]+right_odo
 			      		else:
 			      			nb+=1
-					elif(nb==3):
+				elif(nb==3):
 			      		if(string[i]!='#'):
 			      			left_odo=string[i]+left_odo
-			      		else:
-			      			nb+=1
-			      	elif(nb==4):
-			      		if(i<0):
-			      			found=True
-			      		elif(string[i]!='#'):
-			      			num=string[i]+num
 			      		else:
 			      			found=True
 			      	i-=1
@@ -85,9 +75,7 @@ class DataHandler(tornado.web.RequestHandler):
 			      data['right'] = right_odo
 			      data['potentiometer'] = potentiometer
 			      data['gyroscope'] = gyroscope
-				  Tg = (float(num)-float(oldNum))*0.05
-				  oldNum = num
-			      derivative_gyro = (float(gyroscope) - float(oldGyroscope)) / Tg
+			      delta_gyro = (float(gyroscope) - float(oldGyroscope))
 			      oldGyroscope = gyroscope				  
 			      # Lecture des donnees venant du modele
 			      if(connection_client_model!=None):
@@ -100,35 +88,34 @@ class DataHandler(tornado.web.RequestHandler):
 			          	nb = 0
 			          	i = len(string)-2
 			          	while(not(found)):
-                          if(nb==0):
-                            if(string[i]!='#'):
-                              Tm = string[i] + Tm
-                            else:
-                              nb+=1
-                          elif(nb==1):
-                            if(string[i]!='#'):
-                              theta = string[i] + theta
-                            else:
-                              nb+=1
-                          elif(nb==2):
-                            if(string[i]!='#'):
-                              y = string[i] + y
-                            else:
-                               nb+=1
-                          elif(nb==3):
-                            if(string[i] != '#'):
-                              x = string[i]+x
-                            else:
-                              found = True
-                          i -= 1
+                          			if(nb==0):
+                            				if(string[i]=='#'):
+                              					nb+=1
+                          			elif(nb==1):
+                            				if(string[i]!='#'):
+                              					theta = string[i] + theta
+                            				else:
+                              					nb+=1
+                          			elif(nb==2):
+                            				if(string[i]!='#'):
+                              					y = string[i] + y
+                            				else:
+                               					nb+=1
+                          			elif(nb==3):
+                           				if(string[i] != '#'):
+                              					x = string[i]+x
+                            				else:
+                              					found = True
+                          			i -= 1
 			          	data['x'] = x
 			          	data['y'] = y
 			          	data['theta'] = theta
-						derivative_model = (float(theta)-float(oldTheta))/float(Tm)
-						oldTheta = theta
-			          	data['gap'] = abs(derivative_gyro - derivative_model)
+					delta_model = (float(theta)-float(oldTheta))
+					oldTheta = theta
+			          	data['gap'] = (delta_gyro - delta_model)/0.5
 			      # Envoi des donnees au client au format json                
 			      json_data = json.dumps(data)
+                #print(json_data)
 	        self.write(json_data)		      
 
 	# Fonction declenchee quand le client envoie les commandes            
