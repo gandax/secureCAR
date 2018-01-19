@@ -101,7 +101,7 @@ class DataHandler(tornado.web.RequestHandler):
 			          	data['x'] = x
                                         data['y'] = y
                                         data['theta'] = theta
-                                        data['gap'] = abs(data['theta'] - data['gyroscope'])
+                                        data['gap'] = abs(int(float(data['theta'])) - int(float(data['gyroscope'])))
 			      # Envoi des donnees au client au format json                
 			      json_data = json.dumps(data)
 	        self.write(json_data)		      

@@ -136,7 +136,7 @@ carData.controller('carController', ['$scope', '$http',
 			    $scope.x = response.data.x.substr(0,4) + " m";
                 $scope.y = response.data.y.substr(0,4) + " m";
                 $scope.theta = response.data.theta.substr(0,4) + "°";
-                $scope.gap = response.data.gap.substr(0,4) + "°";
+                $scope.gap = response.data.gap + "°";
 			  }, function errorCallback(response) {
 			    console.log("Error : " + response)
 			});
