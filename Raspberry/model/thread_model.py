@@ -132,7 +132,7 @@ class runModel(Thread):
                         old_theta = output[2]
                         old_data = current_data
                         # Ecriture des sorties du modele sur le socket du serveur web
-                        msg = str(old_x) + "#" + str(old_y) + "#" + str(old_theta*180/3.14) + "#"
+                        msg = str(old_x) + "#" + str(old_y) + "#" + str(old_theta*180/3.14) + "#" + str(T) + "#"
                         connection_to_server.send(msg.encode())			
                         timeLastSend = time.time()
                 except BlockingIOError:
