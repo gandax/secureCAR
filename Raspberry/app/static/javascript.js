@@ -154,7 +154,7 @@ carData.controller('carController', ['$scope', '$http',
 							$("#warning").append("<img src=\"static/img/warning.png\" width=\"60px\" height=\"60px\"><p>The car has been pushed</p>");
 						// sinon on indique que le voiture a rencontré un obstacle
 						}else{
-							$("#warning").append("<img src=\"static/img/warning.png\" width=\"60px\" height=\"60px\"><p>The car has hit an obstacle</p>");
+							$("#warning").append("<img src=\"static/img/warning.png\" width=\"60px\" height=\"60px\"><p>The car hit an obstacle</p>");
 						}
 					}else{
 						// si la voiture n'avance plus, on efface le warning
