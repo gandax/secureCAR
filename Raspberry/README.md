@@ -9,9 +9,13 @@ On the Raspberry Pi, 3 processes are running:
     * Start the thread of the model
  * A web server
     * Display a HMI to control and get the value from the car and the model
+    * Calculate the derivative of the difference of the two angles
  * A model
     * Calculate the model with the data from the cra
     * Send its outputs to the web server
+    
+On the client part of our HMI, a warning is displayed if the derivative calculed by the model is too high. It can then detect the type of problem depending of the value of the derivative of the angle from  the gyroscope.
+The warning disappears when the car stops.
     
 ***
 
