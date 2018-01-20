@@ -13,6 +13,11 @@ carData.controller('carController', ['$scope', '$http',
         // constante pour calculer la commande de l'angle à envoyer
 		const anglemax = 20;
         const anglemin = 10;
+		
+		// seuil de détection de diagnostic
+		const threshold = 10;
+		// seuil pour considérer que le gyroscope ne bouge pas
+		const threshold_gyro = 5;
 
         // variable représentant l'ordre à envoyer au moteur (0 pour l'arrêt, 1 pour la marche arrière et 2 pour la marche avant)
 		var motorCommand = 0;
@@ -29,8 +34,11 @@ carData.controller('carController', ['$scope', '$http',
 		var isKeyup = false;
 		var isKeydown = false;
 		var isKeyleft = false;
-		var isKeyright =false;
+		var isKeyright = false;
 
+		// valeur pour calculer l'écart de valeur entre les odomètres
+		var oldLeftOdo = 0;
+		var oldRightOdo = 0;
         
 		$scope.init = function(){
             // initialisation des images des flèches en gris
@@ -129,12 +137,41 @@ carData.controller('carController', ['$scope', '$http',
 			  method: 'GET',
 			  url: '/data',
 			}).then(function successCallback(response) {
-			    $scope.potentiometer = response.data.potentiometer+"°";
-			    $scope.left_odo = response.data.left+"°";
-			    $scope.right_odo = response.data.right+"°";
+			    $scope.potentiometer = response.data.potentiometer;
+			    $scope.left_odo = parseInt(response.data.left);
+			    $scope.right_odo = parseInt(response.data.right);
+                $scope.gyroscope = response.data.gyroscope+"°";
 			    $scope.x = response.data.x.substr(0,4) + " m";
                 $scope.y = response.data.y.substr(0,4) + " m";
                 $scope.theta = response.data.theta.substr(0,4) + "°";
+                $scope.gap = response.data.gap;
+				$scope.derivative_gyro = response.data.derivative_gyro;
+				// si on détecte une erreur
+				if(Math.abs(parseInt($scope.gap)) > threshold){
+					if($("#warning").has("img").length==0){
+						// on indique que la voiture a rencontré un obstacle quand la valeur du gyroscope continue à évoluer
+						if(Math.abs(parseInt($scope.derivative_gyro))>threshold_gyro){
+							$("#warning").append("<img src=\"static/img/warning.png\" width=\"60px\" height=\"60px\"><p>The car has been pushed</p>");
+						// sinon on indique que le voiture a rencontré un obstacle
+						}else{
+							$("#warning").append("<img src=\"static/img/warning.png\" width=\"60px\" height=\"60px\"><p>The car hit an obstacle</p>");
+						}
+					}else{
+						// si la voiture n'avance plus, on efface le warning
+						if(motorCommand==0 && ($scope.left_odo-oldLeftOdo==0)&& ($scope.right_odo-oldRightOdo==0)){
+							$("#warning").empty();
+						}
+					}
+				}else{
+					if($("#warning").has("img").length!=0){
+						// si la voiture n'avance plus, on efface le warning
+						if(motorCommand==0 && ($scope.left_odo-oldLeftOdo==0)&& ($scope.right_odo-oldRightOdo==0)){
+							$("#warning").empty();
+						}
+					}
+				}
+				oldLeftOdo = $scope.left_odo;
+				oldRightOdo = $scope.right_odo;
 			  }, function errorCallback(response) {
 			    console.log("Error : " + response)
 			});
