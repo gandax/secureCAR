@@ -76,6 +76,7 @@ class DataHandler(tornado.web.RequestHandler):
 			      data['potentiometer'] = potentiometer
 			      data['gyroscope'] = gyroscope
 			      delta_gyro = (float(gyroscope) - float(oldGyroscope))
+				  data['derivative_gyro'] = delta_gyro/0.5
 			      oldGyroscope = gyroscope				  
 			      # Lecture des donnees venant du modele
 			      if(connection_client_model!=None):
@@ -113,6 +114,7 @@ class DataHandler(tornado.web.RequestHandler):
 					delta_model = (float(theta)-float(oldTheta))
 					oldTheta = theta
 			          	data['gap'] = (delta_gyro - delta_model)/0.5
+						
 			      # Envoi des donnees au client au format json                
 			      json_data = json.dumps(data)
                 #print(json_data)
