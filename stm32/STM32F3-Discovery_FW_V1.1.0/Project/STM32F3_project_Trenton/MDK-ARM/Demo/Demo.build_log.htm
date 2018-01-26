@@ -1,0 +1,126 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: µVision V5.24.2.0
+Copyright (C) 2017 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Thom Thomas, Insa, LIC=----
+ 
+Tool Versions:
+Toolchain:       MDK-Lite  Version: 5.24.1
+Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 5 (build 528)
+Assembler:       Armasm.exe V5.06 update 5 (build 528)
+Linker/Locator:  ArmLink.exe V5.06 update 5 (build 528)
+Library Manager: ArmAr.exe V5.06 update 5 (build 528)
+Hex Converter:   FromElf.exe V5.06 update 5 (build 528)
+CPU DLL:         SARMCM3.DLL V5.24.1
+Dialog DLL:      DCM.DLL V1.16.0.0
+Target DLL:      UL2CM3.DLL V1.160.3.0
+Dialog DLL:      TCM.DLL V1.32.0.0
+ 
+<h2>Project:</h2>
+C:\Users\Thomas\Documents\GitHub\secureCAR\stm32\STM32F3-Discovery_FW_V1.1.0\Project\STM32F3_project_Trenton\MDK-ARM\Demo.uvprojx
+Project File Date:  12/27/2017
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
+Rebuild target 'Demo'
+assembling startup_stm32f30x.s...
+compiling stm32f3_discovery.c...
+compiling stm32f3_discovery_l3gd20.c...
+compiling stm32f30x_adc.c...
+compiling stm32f30x_crc.c...
+compiling stm32f30x_comp.c...
+compiling stm32f30x_can.c...
+compiling stm32f30x_dbgmcu.c...
+compiling stm32f30x_dac.c...
+compiling stm32f30x_dma.c...
+compiling stm32f30x_exti.c...
+compiling stm32f30x_gpio.c...
+compiling stm32f30x_flash.c...
+compiling stm32f30x_i2c.c...
+compiling stm32f30x_iwdg.c...
+compiling stm32f30x_misc.c...
+compiling stm32f30x_opamp.c...
+compiling stm32f30x_pwr.c...
+compiling stm32f30x_rcc.c...
+compiling stm32f30x_syscfg.c...
+compiling stm32f30x_spi.c...
+compiling stm32f30x_rtc.c...
+compiling stm32f30x_wwdg.c...
+compiling stm32f30x_usart.c...
+compiling stm32f30x_tim.c...
+compiling system_stm32f30x.c...
+compiling stm32f30x_it.c...
+..\..\..\..\usart\USART.h(14): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\gyroscope.h(24): warning:  #1-D: last line of file ends without a newline
+  #endif // _GYROSCOPE_H
+..\System_Time.h(15): warning:  #1-D: last line of file ends without a newline
+  #endif // _SYSTEM_TIME_H
+..\stm32f30x_it.c: 3 warnings, 0 errors
+compiling main.c...
+..\gyroscope.h(24): warning:  #1-D: last line of file ends without a newline
+  #endif // _GYROSCOPE_H
+..\..\..\..\usart\USART.h(14): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\System_Time.h(15): warning:  #1-D: last line of file ends without a newline
+  #endif // _SYSTEM_TIME_H
+..\main.c: 3 warnings, 0 errors
+compiling System_Time.c...
+..\..\..\..\usart\USART.h(14): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\gyroscope.h(24): warning:  #1-D: last line of file ends without a newline
+  #endif // _GYROSCOPE_H
+..\System_Time.h(15): warning:  #1-D: last line of file ends without a newline
+  #endif // _SYSTEM_TIME_H
+..\System_Time.c(72): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	if ( inc > 0.001 || inc < -0.001){
+..\System_Time.c(83): warning:  #1-D: last line of file ends without a newline
+  }
+..\System_Time.c(61): warning:  #177-D: variable "numToSend"  was declared but never referenced
+  	char numToSend[5];
+..\System_Time.c: 6 warnings, 0 errors
+compiling gyroscope.c...
+..\gyroscope.h(24): warning:  #1-D: last line of file ends without a newline
+  #endif // _GYROSCOPE_H
+..\gyroscope.c(100): warning:  #1-D: last line of file ends without a newline
+  }
+..\gyroscope.c: 2 warnings, 0 errors
+compiling USART.c...
+..\..\..\..\usart\usart.h(14): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\..\..\..\usart\USART.c(162): warning:  #1-D: last line of file ends without a newline
+  }
+..\..\..\..\usart\USART.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=4980 RO-data=424 RW-data=76 ZI-data=1132  
+".\Demo\Demo.axf" - 0 Error(s), 16 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.5.2.0.pack
+                ARM.CMSIS.5.2.0
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+   * Component: CORE Version: 5.0.2
+
+Package Vendor: Keil
+                http://www.keil.com/pack/Keil.STM32F3xx_DFP.2.0.0.pack
+                Keil.STM32F3xx_DFP.2.0.0
+                STMicroelectronics STM32F3 Series Device Support and Examples
+
+<h2>Collection of Component include folders:</h2>
+  .\RTE\_Demo
+  C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.2.0\CMSIS\Include
+  C:\Keil_v5\ARM\PACK\Keil\STM32F3xx_DFP\2.0.0\Drivers\CMSIS\Device\ST\STM32F3xx\Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE:5.0.2
+Build Time Elapsed:  00:00:10
+</pre>
+</body>
+</html>

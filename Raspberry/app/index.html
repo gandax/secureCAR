@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="carApp">
+	<head>
+		<meta charset="utf-8" />
+		<title>Secure Car</title>
+		<link rel="stylesheet" href="{{ static_url("style.css") }}" type="text/css">
+		<script src="{{ static_url("angular.min.js") }}"></script>
+		<script src="{{ static_url("jquery.js") }}"></script>
+		<script src="{{ static_url("javascript.js") }}"></script>
+	</head>
+	<body>
+		<header>
+			<h1>Secure Car</h1>
+		</header>
+		<section ng-controller="carController" data-ng-init="init()" >
+			<div id="arrows" ng-keyup="OnKeyUp($event)" ng-keydown="OnKeyDown($event)" >
+				<h3> Control of the car </h3>
+				<p>Use the arrows on your keyboard to control the car</p>
+				<img id="uparrow"  height="42" width="42">
+				<img id="leftarrow" height="42" width="42">
+				<img id="rightarrow" height="42" width="42">
+				<img id="downarrow" height="42" width="42">
+			</div>
+			<div id="data">
+				<h3> Sensors data </h3>
+                <div>Gyroscope: <span ng-bind="gyroscope"></span></div>
+				<h3> Ouputs of the model </h3>
+				<div> x: <span ng-bind="x"></span></div>
+                <div> y: <span ng-bind="y"></span></div>
+                <div> theta: <span ng-bind="theta"></span></div>
+                <h3> Diagnosis </h3>
+                <div> Angle gap: <span ng-bind="gap"></div>
+				<div id="warning">
+				</div>
+				<!--<div ng-show="warning==2"><img src="static/img/arrow-left.png"> <p> The car has rammed an obstacle</p></div>-->
+			</div>
+		</section>
+	</body>
+</html>
